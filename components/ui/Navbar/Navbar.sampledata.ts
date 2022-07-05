@@ -2,7 +2,7 @@ export const navDatas = [
     {
         id: 1,
         title: "Focus Time",
-        path: "/",
+        path: "/focus-time",
         icon: "akar-icons:clock"
     },
     {

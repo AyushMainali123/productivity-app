@@ -32,10 +32,10 @@ const SideNavDatas = ({ datas }: { datas: typeof navDatas }) => {
                                 paddingLeft={"40px"}
                                 _active={{ background: "rgba(122, 122, 122, 0.5)" }}
                                 _hover={{ background: "rgba(122, 122, 122, 0.3)" }}
-                                background={router.asPath.includes(data.path) ? "rgba(122, 122, 122, 0.3)" : ""}
+                                background={router.asPath === data.path ? "rgba(122, 122, 122, 0.3)" : ""}
                             >
                                 <Icon icon={data.icon} width={"20px"} height={"20px"} />
-                                <span>{data.title}</span>
+                                <Box as={"span"} marginLeft={"17px"}>{data.title}</Box>
                             </Link>
                         </NextLink>
                     </ListItem>
@@ -52,10 +52,10 @@ const Navbar = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     return (
-        <Box as={"nav"} padding={"0 30px"} bgColor={"black.primary"}>
+        <Box as={"nav"} padding={"0 30px"} bgColor={"black.primary"} >
 
             {/* Top Navigation Starts */}
-            <HStack justifyContent={"space-between"}>
+            <HStack justifyContent={"space-between"} maxWidth={"8xl"} margin={"auto"}>
 
                 {/* Left navigation */}
                 <StackItem>
@@ -66,7 +66,7 @@ const Navbar = () => {
                             </Button>
                         </StackItem>
                         <StackItem as={NextLink} href={"/"} passHref >
-                            <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={"140"} height={"55"} objectFit={"contain"} style={{cursor: "pointer"}} />
+                            <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={"140"} height={"55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
                         </StackItem>
                     </HStack>
                 </StackItem>
@@ -85,12 +85,8 @@ const Navbar = () => {
                                 <MenuButton as={"button"}>
                                     <Avatar name="Sujata Karki" size="sm" fontSize={"16px"} />
                                 </MenuButton>
-                                <MenuList background={"black.primary"} fontSize={"16px"}>
-                                    <MenuItem>Download</MenuItem>
-                                    <MenuItem>Create a Copy</MenuItem>
-                                    <MenuItem>Mark as Draft</MenuItem>
-                                    <MenuItem>Delete</MenuItem>
-                                    <MenuItem>Attend a Workshop</MenuItem>
+                                <MenuList background={"black.primary"} fontSize={"16px"} padding={0}>
+                                    <MenuItem>Log out</MenuItem>
                                 </MenuList>
                             </Menu>
                         </StackItem>
@@ -114,7 +110,7 @@ const Navbar = () => {
                                     <Icon icon={"cil:hamburger-menu"} width={24} height={24} />
                                 </Button>
                             </StackItem>
-                            <StackItem>
+                            <StackItem height={"54px"} as={NextLink} href={"/"} passHref>
                                 <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={"140"} height={"55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
                             </StackItem>
                         </HStack>
