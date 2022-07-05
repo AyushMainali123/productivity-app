@@ -108,7 +108,7 @@ const Navbar = () => {
                 <DrawerOverlay />
                 <DrawerContent backgroundColor={"black.primary"}>
                     <Box as={"aside"}>
-                        <HStack gap={"10px"} padding={"5px 30px"}>
+                        <HStack gap={"10px"} padding={"0px 30px"}>
                             <StackItem>
                                 <Button variant={"ghost"} onClick={onClose} paddingX={1} data-testid="drawerClose-hamburger">
                                     <Icon icon={"cil:hamburger-menu"} width={24} height={24} />
@@ -118,6 +118,9 @@ const Navbar = () => {
                                 <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={"140"} height={"55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
                             </StackItem>
                         </HStack>
+
+
+                        {/* Side Navbar Data List is rendered in this component */}
                         <SideNavDatas datas={navDatas} />
                     </Box>
                 </DrawerContent>

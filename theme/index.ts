@@ -11,7 +11,11 @@ const overrides = {
     mono: "Roboto, sans-serif",
   },
     colors,
-    styles
+  styles,
+  config: {
+      initialColorMode: 'dark',
+      useSystemColorMode: false,
+    }
 }
 
 const theme = extendTheme(overrides)
