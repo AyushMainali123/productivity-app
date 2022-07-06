@@ -17,8 +17,8 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
 
     return (
         <>
-            <Navbar />
-            <Box as={"main"} padding={"35px 40px"} background={"baseBackground"} minHeight={"calc(100vh - 55px - 54px)"}>
+            <Navbar isAuthenticated={true} />
+            <Box as={"main"}  py={"35px"} background={"baseBackground"} minHeight={"calc(100vh - 55px - 54px)"}>
                 {children}
             </Box>
             <Footer />

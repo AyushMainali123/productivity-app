@@ -54,18 +54,23 @@ const TaskInput = () => {
                     pr={"100px"}
                     value={taskTitle}
                     onChange={handleTaskTextUpdate}
-
+                    fontSize={{base: "xs", md: "md"}}
                 />
                 <InputRightElement py={"25px"} mx={"10px"}>
-                    <Button type={"submit"} py={"10px"} px={"20px"} mr={"40px"} minW={"70px"} height={"30px"}>
+                    <Button
+                        type={"submit"}
+                        py={"10px"}
+                        px={"20px"}
+                        mr={"40px"}
+                        minW={"70px"}
+                        height={"30px"}
+                        fontSize={{ base: "xs", md: "md" }}
+                    >
                         <span>Enter </span>
                     </Button>
                 </InputRightElement>
 
             </InputGroup>
-            {/* <VisuallyHidden> */}
-
-            {/* </VisuallyHidden> */}
         </form>
     )
 }

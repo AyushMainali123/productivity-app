@@ -17,7 +17,7 @@ const TaskList = () => {
 
     return (
         <Box mt={{ base: "20px", md: "30px", lg: "60px" }}>
-            <Box as={"h2"} fontSize={"xl"} fontWeight={"medium"} mb={{ base: "12px", md: "16px", lg: "20px" }}>TASKS</Box>
+            <Box as={"h4"} fontSize={"md"} fontWeight={"medium"} mb={{ base: "12px", md: "16px", lg: "20px" }} ml={{base: "12px", md: 0}}>TASKS</Box>
             {
                 (taskLists.every(task => task.isCompleted === true)) && (
                     <Box>Horray!! You have no task left. Do add the task if you have more tasks in queue.</Box>
@@ -30,10 +30,12 @@ const TaskList = () => {
             </VStack>
             <Button
                 mx={"auto"}
+                h={"30px"}
                 my={{ base: "20px", md: "30px", lg: "40px" }}
                 display={"block"}
                 bg={"black.secondary"}
                 onClick={() => setShouldShowCompletedTasks(prev => !prev)}
+                fontSize={{base: "xs", lg: "md"}}
             >
                 {shouldShowCompletedTasks ? "Hide" : "Show"} completed tasks
             </Button>

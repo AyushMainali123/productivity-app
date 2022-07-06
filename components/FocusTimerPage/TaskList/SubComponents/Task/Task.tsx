@@ -107,22 +107,22 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
                 bg={"black.secondary"}
                 px={"12px"}
                 py={"10px"}
-                borderRadius={"base"}
+                borderRadius={{base: "none", lg: "base" }}
                 alignItems={"center"}
                 justifyContent={"space-between"}
             >
                 <StackItem>
-                    <HStack gap={4}>
+                    <HStack gap={{base: 1, md: 4}}>
                         <StackItem display={"flex"}>
                             <Checkbox defaultChecked={isCheckboxChecked} checked={isCheckboxChecked} onChange={handleCheckboxChange} size={"lg"} />
                         </StackItem>
                         <StackItem>
-                            <Button background={"#2F4048"} py={0} height={"28px"} borderRadius={"base"}>
+                            <Button background={"#2F4048"} py={0} height={"28px"} borderRadius={"base"} fontSize={{ base: "xs", md: "md" }}>
                                 Start
                             </Button>
                         </StackItem>
                         <StackItem>
-                            <Box textDecoration={isCompleted ? "line-through" : "initial"}>{title}</Box>
+                            <Box textDecoration={isCompleted ? "line-through" : "initial"} fontSize={{base: "xs", md: "md"}}>{title}</Box>
                         </StackItem>
                     </HStack>
                 </StackItem>

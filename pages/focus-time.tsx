@@ -6,7 +6,7 @@ import AuthLayout from "components/Layouts/AuthLayout"
 const FocusTime = () => {
     return (
         <AuthLayout>
-            <Box as={"section"} maxW={"8xl"} m={"auto"}>
+            <Box as={"section"} maxW={"8xl"} m={"auto"} px={{ base: 0, md: "30px", '2xl': "0px" }}>
                 <TaskInput />
                 <TaskList />
             </Box>
@@ -15,3 +15,5 @@ const FocusTime = () => {
 }
 
 export default FocusTime
+
+//px={{ base: 0, md: "30px", xxl: 0 }}
