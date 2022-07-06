@@ -1,3 +1,4 @@
-import LoginSignupLayout from "./LoginSignUpLayout";
+import LoginSignupLayout from "./LoginSignupLayout";
+
 
 export default LoginSignupLayout;
