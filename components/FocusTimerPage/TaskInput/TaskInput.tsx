@@ -49,22 +49,22 @@ const TaskInput = () => {
                 </InputLeftElement>
                 <Input
                     placeholder="Add a task to “Tasks”, press [ enter ] to save"
-                    bg={"black.secondary"}
                     py={"25px"}
                     pr={"100px"}
                     value={taskTitle}
                     onChange={handleTaskTextUpdate}
-                    fontSize={{base: "xs", md: "md"}}
+                    fontSize={{ base: "xs", md: "md" }}
                 />
                 <InputRightElement py={"25px"} mx={"10px"}>
                     <Button
                         type={"submit"}
-                        py={"10px"}
-                        px={"20px"}
+                        py={4}
+                        px={5}
                         mr={"40px"}
-                        minW={"70px"}
-                        height={"30px"}
+                        minW={"80px"}
+                        size={"sm"}
                         fontSize={{ base: "xs", md: "md" }}
+                        leftIcon={<Icon icon="fluent:arrow-enter-left-24-regular" color="white" />}
                     >
                         <span>Enter </span>
                     </Button>

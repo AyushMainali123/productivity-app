@@ -1,6 +1,7 @@
 import { extendTheme } from "@chakra-ui/react";
 import styles from './styles'
 import colors from './foundations/color'
+import InputStyle from "./components/input";
 
 
 // <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -10,8 +11,11 @@ const overrides = {
     heading: "Roboto, sans-serif",
     mono: "Roboto, sans-serif",
   },
-    colors,
+  colors,
   styles,
+  components: {
+    Input: InputStyle
+  },
   config: {
       initialColorMode: 'dark',
       useSystemColorMode: false,

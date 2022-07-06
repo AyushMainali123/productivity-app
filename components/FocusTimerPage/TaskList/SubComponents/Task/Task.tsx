@@ -107,12 +107,12 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
                 bg={"black.secondary"}
                 px={"12px"}
                 py={"10px"}
-                borderRadius={{base: "none", lg: "base" }}
+                borderRadius={{ base: "none", lg: "base" }}
                 alignItems={"center"}
                 justifyContent={"space-between"}
             >
                 <StackItem>
-                    <HStack gap={{base: 1, md: 4}}>
+                    <HStack gap={{ base: 1, md: 4 }}>
                         <StackItem display={"flex"}>
                             <Checkbox defaultChecked={isCheckboxChecked} checked={isCheckboxChecked} onChange={handleCheckboxChange} size={"lg"} />
                         </StackItem>
@@ -122,18 +122,18 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
                             </Button>
                         </StackItem>
                         <StackItem>
-                            <Box textDecoration={isCompleted ? "line-through" : "initial"} fontSize={{base: "xs", md: "md"}}>{title}</Box>
+                            <Box textDecoration={isCompleted ? "line-through" : "initial"} fontSize={{ base: "xs", md: "md" }}>{title}</Box>
                         </StackItem>
                     </HStack>
                 </StackItem>
 
                 <StackItem>
-                    <Menu >
+                    <Menu>
                         <MenuButton as={Button} variant={"ghost"} height={"30px"}>
                             <Icon icon="bx:dots-vertical-rounded" fontSize={"16px"} />
                         </MenuButton>
                         <MenuList bg={"black.primary"}>
-                            <MenuItem onClick={() => onOpen()}>
+                            <MenuItem onClick={() => onOpen()} fontSize={{base: "xs", md: "md"}}>
                                 Delete
                             </MenuItem>
                         </MenuList>

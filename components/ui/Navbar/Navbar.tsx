@@ -113,12 +113,12 @@ const Navbar = ({isAuthenticated}: NavbarProps) => {
                                     <Icon icon={"ion:notifications-outline"} width={"25"} height={"25"} />
                                 </StackItem>
                                 <StackItem as={"li"} fontSize={"20px"}>
-                                    <Menu>
+                                    <Menu >
                                         <MenuButton as={"button"}>
                                             <Avatar name="Sujata Karki" size="sm" fontSize={"16px"} />
                                         </MenuButton>
                                         <MenuList background={"black.primary"} fontSize={"16px"} padding={0}>
-                                            <MenuItem>Log out</MenuItem>
+                                            <MenuItem fontSize={{ base: "xs", md: "md" }}>Log out</MenuItem>
                                         </MenuList>
                                     </Menu>
                                 </StackItem>
