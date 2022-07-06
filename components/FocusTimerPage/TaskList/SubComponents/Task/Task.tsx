@@ -18,6 +18,7 @@ interface TaskDeletionAlertProps {
     id: string;
     isOpen: boolean;
     onClose: () => void;
+    title: string;
 }
 
 
@@ -30,7 +31,7 @@ interface TaskDeletionAlertProps {
 /*                            Sub Component Starts                            */
 /* -------------------------------------------------------------------------- */
 
-const TaskDeletionAlert = ({ id, onClose, isOpen }: TaskDeletionAlertProps) => {
+const TaskDeletionAlert = ({ id, onClose, isOpen, title }: TaskDeletionAlertProps) => {
 
     const cancelRef = useRef<HTMLButtonElement>(null)
 
@@ -54,7 +55,7 @@ const TaskDeletionAlert = ({ id, onClose, isOpen }: TaskDeletionAlertProps) => {
                 <AlertDialogHeader>Delete Task?</AlertDialogHeader>
                 <AlertDialogCloseButton />
                 <AlertDialogBody>
-                    Are you sure you want to delete this task? This action cannot be reverted.
+                    Are you sure you want to delete the task {`"${title}"`}? This action cannot be reverted.
                 </AlertDialogBody>
                 <AlertDialogFooter>
                     <HStack gap={2}>
@@ -99,6 +100,7 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
                 id={id}
                 isOpen={isOpen}
                 onClose={onClose}
+                title={title}
             />
             <HStack
                 width={"100%"}
