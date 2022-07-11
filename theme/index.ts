@@ -2,6 +2,7 @@ import { extendTheme } from "@chakra-ui/react";
 import styles from './styles'
 import colors from './foundations/color'
 import InputStyle from "./components/input";
+import SelectStyle from "./components/select";
 
 
 // <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -14,7 +15,8 @@ const overrides = {
   colors,
   styles,
   components: {
-    Input: InputStyle
+    Input: InputStyle,
+    Select: SelectStyle
   },
   config: {
       initialColorMode: 'dark',
