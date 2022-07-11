@@ -1,8 +1,10 @@
-import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, StackItem, useDisclosure } from "@chakra-ui/react"
+import { Box, Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, StackItem, useDisclosure } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
-import { removeTaskList, updateTaskList } from "features/todo-slice";
+import { updateTaskList } from "features/todo-slice";
 import { useAppDispatch } from "hooks/redux-hook";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useState } from "react";
+import PomodoroModal from "../PomodoroModal";
+import TaskDeletionAlert from "../TaskDeletionAlert";
 
 /* -------------------------------------------------------------------------- */
 /*                              Interface Starts                              */
@@ -14,68 +16,30 @@ interface TaskProps {
     isCompleted: boolean;
 }
 
-interface TaskDeletionAlertProps {
-    id: string;
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
-}
-
 
 /* ----------------------------- Interface Ends ----------------------------- */
 
 
 
 
-/* -------------------------------------------------------------------------- */
-/*                            Sub Component Starts                            */
-/* -------------------------------------------------------------------------- */
 
-const TaskDeletionAlert = ({ id, onClose, isOpen, title }: TaskDeletionAlertProps) => {
-
-    const cancelRef = useRef<HTMLButtonElement>(null)
-
-    // Redux Dispatch
-    const dispatch = useAppDispatch()
-
-    const handleTaskDeletion = (id: string) => {
-        dispatch(removeTaskList({ id }))
-        onClose();
-    }
-
-
-    return (
-        <AlertDialog
-            isOpen={isOpen}
-            onClose={onClose}
-            leastDestructiveRef={cancelRef}
-        >
-            <AlertDialogOverlay />
-            <AlertDialogContent>
-                <AlertDialogHeader>Delete Task?</AlertDialogHeader>
-                <AlertDialogCloseButton />
-                <AlertDialogBody>
-                    Are you sure you want to delete the task {`"${title}"`}? This action cannot be reverted.
-                </AlertDialogBody>
-                <AlertDialogFooter>
-                    <HStack gap={2}>
-                        <Button ref={cancelRef} onClick={onClose}>Cancel</Button>
-                        <Button onClick={() => handleTaskDeletion(id)} colorScheme={"red"}>Delete task</Button>
-                    </HStack>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-    )
-
-}
-
-
-/* --------------------------- Sub Component Ends --------------------------- */
 
 const Task = ({ title, isCompleted, id }: TaskProps) => {
 
     const [isCheckboxChecked, setCheckboxChecked] = useState(() => isCompleted)
-    const { isOpen, onClose, onOpen } = useDisclosure()
+
+    // useDisclosure for alert modal
+    const { isOpen: isDeleteModalOpen, onClose: onDeleteModalClose, onOpen: onDeleteModalOpen } = useDisclosure({
+        id: "deletemodal"
+    })
+
+    const { isOpen: isPomodoroModalOpen, onClose: onPomodoroModalClose, onOpen: onPomodoroModalOpen } = useDisclosure({
+        id: "pomodoromodal"
+    })
+
+
+
+
 
     // Redux Dispatch
     const dispatch = useAppDispatch()
@@ -91,15 +55,17 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
     }
 
 
-
-
-
     return (
         <>
+            <PomodoroModal
+                isOpen={isPomodoroModalOpen}
+                onClose={onPomodoroModalClose}
+                title={title}
+            />
             <TaskDeletionAlert
                 id={id}
-                isOpen={isOpen}
-                onClose={onClose}
+                isOpen={isDeleteModalOpen}
+                onClose={onDeleteModalClose}
                 title={title}
             />
             <HStack
@@ -111,33 +77,40 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
                 alignItems={"center"}
                 justifyContent={"space-between"}
             >
+
                 <StackItem>
                     <HStack gap={{ base: 1, md: 4 }}>
                         <StackItem display={"flex"}>
                             <Checkbox defaultChecked={isCheckboxChecked} checked={isCheckboxChecked} onChange={handleCheckboxChange} size={"lg"} />
                         </StackItem>
                         <StackItem>
-                            <Button background={"#2F4048"} py={0} height={"28px"} borderRadius={"base"} fontSize={{ base: "xs", md: "md" }}>
+                            <Button onClick={onPomodoroModalOpen} background={"#2F4048"} py={0} height={"28px"} borderRadius={"base"} fontSize={{ base: "xs", md: "md" }}>
                                 Start
                             </Button>
                         </StackItem>
-                        <StackItem>
+                        <StackItem whiteSpace={"nowrap"} overflow={"hidden"} textOverflow={"ellipsis"} maxW={"50vw"}>
                             <Box textDecoration={isCompleted ? "line-through" : "initial"} fontSize={{ base: "xs", md: "md" }}>{title}</Box>
                         </StackItem>
                     </HStack>
                 </StackItem>
 
                 <StackItem>
-                    <Menu>
-                        <MenuButton as={Button} variant={"ghost"} height={"30px"}>
-                            <Icon icon="bx:dots-vertical-rounded" fontSize={"16px"} />
-                        </MenuButton>
-                        <MenuList bg={"black.primary"}>
-                            <MenuItem onClick={() => onOpen()} fontSize={{base: "xs", md: "md"}}>
-                                Delete
-                            </MenuItem>
-                        </MenuList>
-                    </Menu>
+                    <HStack gap={1}>
+                        <StackItem>4hr 33min</StackItem>
+                        <StackItem>
+                            <Menu>
+                                <MenuButton as={Button} variant={"ghost"} height={"30px"}>
+                                    <Icon icon="bx:dots-vertical-rounded" fontSize={"16px"} />
+                                </MenuButton>
+                                <MenuList bg={"black.primary"}>
+                                    <MenuItem onClick={() => onDeleteModalOpen()} fontSize={{ base: "xs", md: "md" }}>
+                                        Delete
+                                    </MenuItem>
+                                </MenuList>
+                            </Menu>
+                        </StackItem>
+                    </HStack>
+
                 </StackItem>
 
             </HStack>
@@ -147,3 +120,10 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
 
 
 export default Task
+
+/**
+ *     white-space: nowrap;
+    overflow: hidden;
+    max-width: 50vw;
+    text-overflow: ellipsis;
+ */
