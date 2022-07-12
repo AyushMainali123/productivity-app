@@ -14,3 +14,15 @@ a {
 * {
   box-sizing: border-box;
 }
+
+
+#nprogress .spinner {
+  display: none;
+}
+
+#nprogress .spinner-icon {
+  display: none;
+}
+#nprogress .peg {
+  box-shadow: none;
+}
