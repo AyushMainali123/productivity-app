@@ -2,11 +2,16 @@ import { Center, Link, useBreakpointValue } from "@chakra-ui/react";
 import Image from "next/image";
 import NextLink from "next/link";
 
-const Footer = () => {
+
+interface FooterInterface {
+    background?: string;
+}
+
+const Footer = ({background}: FooterInterface) => {
 
     const isPCScreen = useBreakpointValue({ base: false, lg: true })
     return (
-        <Center as={"footer"} bg={"black.primary"} py={"12px"} gap={5}>
+        <Center as={"footer"} bg={background || "black.primary"} py={"12px"} gap={5}>
 
             {/* planetscale Link */}
             <Center gap={2}>
