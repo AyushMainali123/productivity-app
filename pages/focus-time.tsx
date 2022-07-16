@@ -15,5 +15,3 @@ const FocusTime = () => {
 }
 
 export default FocusTime
-
-//px={{ base: 0, md: "30px", xxl: 0 }}

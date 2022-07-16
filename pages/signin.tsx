@@ -4,7 +4,7 @@ import LoginSignupLayout from 'components/Layouts/LoginSignupLayout'
 import type { NextPage } from 'next'
 import { signIn } from 'next-auth/react'
 import NextLink from 'next/link'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 
 
 const INITIAL_STATE = {
