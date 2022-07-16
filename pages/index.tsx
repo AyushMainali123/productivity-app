@@ -1,10 +1,15 @@
 import { Box, Button, Stack, StackItem } from '@chakra-ui/react'
 import LandingLayout from 'components/Layouts/LandingLayout'
 import type { NextPage } from 'next'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import NextLink from 'next/link'
 
 const Home: NextPage = () => {
+
+
+  const session = useSession();
+
 
   return (
     <LandingLayout>
@@ -39,7 +44,7 @@ const Home: NextPage = () => {
           <Box as={"p"} fontSize={{ base: "md", lg: "lg", xl: "xl" }} my={"6"} maxW={"500px"}>
             Pomodoro timer is the easiest way to avoid procrastinations and boost your daily productivity.
           </Box>
-          <StackItem as={NextLink} href={"/focus-time"} passHref>
+          <StackItem as={NextLink} href={session.status === "authenticated" ?  "/focus-time" : "/signup"} passHref>
             <Button mt={6} bg={"white"} color={"black"} _hover={{ bg: "rgba(255, 255, 255, 0.6)" }} fontSize={{ base: "md", lg: "xl" }}>
               Get Started
             </Button>

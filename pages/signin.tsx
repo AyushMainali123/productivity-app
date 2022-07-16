@@ -1,9 +1,11 @@
-import { Box, Button, Input, InputGroup, InputRightElement, Link } from '@chakra-ui/react'
+import { Box, Button, Input, InputGroup, InputRightElement, Link, useToast } from '@chakra-ui/react'
 import { Icon } from '@iconify/react'
 import LoginSignupLayout from 'components/Layouts/LoginSignupLayout'
 import type { NextPage } from 'next'
+import { signIn } from 'next-auth/react'
 import NextLink from 'next/link'
 import { useState } from 'react'
+
 
 const INITIAL_STATE = {
     isPasswordVisible: false
@@ -13,11 +15,23 @@ const INITIAL_STATE = {
 const SignIn: NextPage = () => {
 
     const [isPasswordVisible, setPasswordVisible] = useState(INITIAL_STATE.isPasswordVisible)
+    const toast = useToast();
+
+    const handleFormSubmit = (e: FormEvent) => {
+        e.preventDefault()
+        toast({
+            title: 'WIP',
+            description: "Cannot Signin at this moment. Please use google auth instead.",
+            status: 'info',
+            duration: 3000,
+            isClosable: true,
+        })
+    }
 
     return (
         <LoginSignupLayout>
 
-            <Box maxW={"300px"} margin={"auto"} as={"form"}>
+            <Box maxW={"300px"} margin={"auto"} as={"form"} onSubmit={handleFormSubmit}>
                 <Box as={"h4"} minW={"300px"} fontWeight={"semibold"} fontSize={"lg"} mb={{ base: 2, lg: 3 }}>Sign in</Box>
 
                 {/* Single Input Containers */}
@@ -64,6 +78,7 @@ const SignIn: NextPage = () => {
                     border={"1px solid white"}
                     borderRadius={"sm"}
                     leftIcon={<Icon icon={"akar-icons:google-fill"} width={"18px"} height={"18px"} color={"white"} />}
+                    onClick={() => signIn()}
                 >
                     <Box as={"span"}>Continue with google</Box>
                 </Button>

@@ -6,7 +6,9 @@ import { Box, Button, HStack, Link, StackItem, useBreakpointValue } from "@chakr
 import Footer from "components/ui/Footer";
 import Image from "next/image";
 import NextLink from 'next/link';
-
+import { useSession } from "next-auth/react"
+import axios from "axios";
+import { useEffect } from "react";
 
 interface LandingLayoutProps {
     children: React.ReactNode;
@@ -33,8 +35,10 @@ const LandingNavbar = ({ isAuthenticated }: LandingNavbarProps) => {
             <HStack justifyContent={"space-between"}>
 
                 {/* Left Navbar */}
-                <StackItem as={NextLink} href={"/"} passHref >
-                    <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={isCurrentResolutionPC ? "200" : "140"} height={isCurrentResolutionPC ? "30" : "55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
+                <StackItem >
+                    <NextLink href={"/"} passHref >
+                        <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={isCurrentResolutionPC ? "200" : "140"} height={isCurrentResolutionPC ? "30" : "55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
+                    </NextLink>
                 </StackItem>
 
 
@@ -85,17 +89,24 @@ const LandingNavbar = ({ isAuthenticated }: LandingNavbarProps) => {
 
 const LandingLayout = ({ children }: LandingLayoutProps) => {
 
+    const session = useSession();
+
+    const getUsersData = async () => {
+        const res = await axios.get("/api/auth/users")
+        console.log({ res })
+    }
+
+    useEffect(() => {
+        getUsersData();
+    }, [])
+
     return (
         <Box
-            bgGradient={"linear-gradient(112.68deg, rgba(84, 121, 139, 0.5) 0%, rgba(18, 25, 29, 1) 100%)"}
+            bgGradient={"linear-gradient(127.98deg, #2F4048 0%, #12191D 73.9%);"}
             pt={14} pb={5}
         >
 
-            {/* {
-                !!isPCBreakpoint && (<Image src={"/svg/landing-line.svg"} alt={"Landing Line"} layout={"fill"} />)
-            } */}
-
-            <LandingNavbar isAuthenticated={true} />
+            <LandingNavbar isAuthenticated={session.status === "authenticated"} />
             <Box as={"main"} maxW={"8xl"} m={"auto"}  >
                 {children}
             </Box>

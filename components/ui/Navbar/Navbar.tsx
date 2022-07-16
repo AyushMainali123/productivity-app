@@ -3,6 +3,7 @@ import {
     MenuButton, MenuItem, MenuList, StackItem, UnorderedList, useBreakpointValue, useDisclosure
 } from "@chakra-ui/react";
 import { Icon } from '@iconify/react';
+import { signOut } from "next-auth/react";
 import Image from "next/image";
 import NextLink from 'next/link';
 import { useRouter } from "next/router";
@@ -14,9 +15,17 @@ import { navDatas } from "./Navbar.sampledata";
 /*                              Interface Starts                              */
 /* -------------------------------------------------------------------------- */
 
-interface NavbarProps {
-    isAuthenticated: boolean;
+interface AuthenticatedProps {
+    isAuthenticated: true;
+    name: string;
 }
+
+interface NotAuthenticatedProps  {
+    isAuthenticated: false;
+}
+
+type NavbarProps =  AuthenticatedProps | NotAuthenticatedProps;
+
 
 /* ----------------------------- Interface Ends ----------------------------- */
 
@@ -59,13 +68,18 @@ const SideNavDatas = ({ datas }: { datas: typeof navDatas }) => {
 
 /* --------------------------- Sub Component Ends --------------------------- */
 
-const Navbar = ({isAuthenticated}: NavbarProps) => {
+const Navbar = (props: NavbarProps) => {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const isPCScreen = useBreakpointValue({base: false, lg: true})
-    
+    const isPCScreen = useBreakpointValue({ base: false, lg: true })
+
+
+    const handleLogOut = async () => {
+       await signOut();
+    }
+
     return (
-        <Box as={"nav"} px={{base: "12px", md: "30px"}} bgColor={"black.primary"} >
+        <Box as={"nav"} px={{ base: "12px", md: "30px" }} bgColor={"black.primary"} >
 
             {/* Top Navigation Starts */}
             <HStack justifyContent={"space-between"} maxWidth={"8xl"} margin={"auto"}>
@@ -76,7 +90,7 @@ const Navbar = ({isAuthenticated}: NavbarProps) => {
 
                         {/* Show hamburger if the user is authenticated */}
                         {
-                            !!isAuthenticated && (
+                            !!props.isAuthenticated && (
                                 <StackItem>
                                     <Button variant={"ghost"} onClick={onOpen} paddingX={1} data-testid="drawerOpen-hamburger">
                                         <Icon icon={"cil:hamburger-menu"} width={24} height={24} />
@@ -93,10 +107,10 @@ const Navbar = ({isAuthenticated}: NavbarProps) => {
 
                 {/* Right Navigation */}
 
-                
+
                 {/* Show rightsidebar if the user is authenticated */}
                 {
-                    !!isAuthenticated && (
+                    !!props.isAuthenticated && (
                         <StackItem>
                             <HStack as={"ul"} gap={"20px"}>
 
@@ -104,21 +118,18 @@ const Navbar = ({isAuthenticated}: NavbarProps) => {
                                 {
                                     !!isPCScreen && (
                                         <StackItem as={"li"} fontSize={"16px"}>
-                                            {`Sujata Karki's`} Workspace
+                                            {`${props.name}'s`} Workspace
                                         </StackItem>
                                     )
                                 }
-                                
-                                <StackItem as={"li"} fontSize={"20px"}>
-                                    <Icon icon={"ion:notifications-outline"} width={"25"} height={"25"} />
-                                </StackItem>
+
                                 <StackItem as={"li"} fontSize={"20px"}>
                                     <Menu >
                                         <MenuButton as={"button"}>
-                                            <Avatar name="Sujata Karki" size="sm" fontSize={"16px"} />
+                                            <Avatar name={props.name} size="sm" fontSize={"16px"} />
                                         </MenuButton>
                                         <MenuList background={"black.primary"} fontSize={"16px"} padding={0}>
-                                            <MenuItem fontSize={{ base: "xs", md: "md" }}>Log out</MenuItem>
+                                            <MenuItem fontSize={{ base: "xs", md: "md" }} onClick={handleLogOut}>Log out</MenuItem>
                                         </MenuList>
                                     </Menu>
                                 </StackItem>
@@ -126,7 +137,7 @@ const Navbar = ({isAuthenticated}: NavbarProps) => {
                         </StackItem>
                     )
                 }
-               
+
             </HStack>
 
 
