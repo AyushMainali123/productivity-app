@@ -54,3 +54,5 @@ const Settings = () => {
 
 
 export default Settings
+
+Settings.requireAuth = true;

@@ -108,3 +108,6 @@ const Reports = () => {
 }
 
 export default Reports
+
+
+Reports.requireAuth = true;
