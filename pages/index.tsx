@@ -29,7 +29,7 @@ const Home: NextPage = () => {
             w={{ base: "300px",  lg: "303px", xl: "500px" }}
             mb={2}
           >
-            <Image src={"/svg/landing-illus.svg"} layout={"fill"} alt={"Pomodoro Illustration"} objectFit={"cover"} />
+            <Image src={"/svg/landing-illus.svg"} layout={"fill"} alt={"Pomodoro Illustration"} objectFit={"cover"} priority={true} />
           </Box>
         </StackItem>
 
