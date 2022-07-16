@@ -6,9 +6,18 @@ import { store } from 'store'
 import { Provider } from 'react-redux'
 import NextNProgress from 'nextjs-progressbar'
 import { SessionProvider } from "next-auth/react"
+import AuthGuard from 'components/AuthGuard'
 
 
-function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+// Custom Interface for including requireAuth props passed by each page.
+interface MyAppProps extends AppProps {
+  Component: AppProps['Component'] & {
+    requireAuth: boolean
+  }
+}
+
+
+function MyApp({ Component, pageProps: { session, ...pageProps } }: MyAppProps) {
   return (
     <SessionProvider session={session}>
       <Provider store={store}>
@@ -17,7 +26,13 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
             color="#BEE3F8"
             height={5}
           />
-          <Component {...pageProps} />
+          {Component.requireAuth ? (
+            <AuthGuard>
+              <Component {...pageProps} />
+            </AuthGuard>
+          ) : (
+            <Component {...pageProps} />
+          )}
         </ChakraProvider>
       </Provider>
     </SessionProvider>

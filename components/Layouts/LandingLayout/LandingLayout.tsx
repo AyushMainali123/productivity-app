@@ -1,15 +1,14 @@
-/* -------------------------------------------------------------------------- */
-/*                              Interface Starts                              */
-/* -------------------------------------------------------------------------- */
 
 import { Box, Button, HStack, Link, StackItem, useBreakpointValue } from "@chakra-ui/react";
 import Footer from "components/ui/Footer";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import NextLink from 'next/link';
-import { useSession } from "next-auth/react"
-import axios from "axios";
-import { useEffect } from "react";
 
+
+/* -------------------------------------------------------------------------- */
+/*                              Interface Starts                              */
+/* -------------------------------------------------------------------------- */
 interface LandingLayoutProps {
     children: React.ReactNode;
 }
@@ -37,7 +36,9 @@ const LandingNavbar = ({ isAuthenticated }: LandingNavbarProps) => {
                 {/* Left Navbar */}
                 <StackItem >
                     <NextLink href={"/"} passHref >
-                        <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={isCurrentResolutionPC ? "200" : "140"} height={isCurrentResolutionPC ? "30" : "55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
+                        <Box position={"relative"}>
+                            <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={isCurrentResolutionPC ? "200" : "140"} height={isCurrentResolutionPC ? "30" : "55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
+                        </Box>
                     </NextLink>
                 </StackItem>
 
@@ -90,15 +91,6 @@ const LandingNavbar = ({ isAuthenticated }: LandingNavbarProps) => {
 const LandingLayout = ({ children }: LandingLayoutProps) => {
 
     const session = useSession();
-
-    const getUsersData = async () => {
-        const res = await axios.get("/api/auth/users")
-        console.log({ res })
-    }
-
-    useEffect(() => {
-        getUsersData();
-    }, [])
 
     return (
         <Box

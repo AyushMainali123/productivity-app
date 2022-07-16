@@ -15,3 +15,6 @@ const FocusTime = () => {
 }
 
 export default FocusTime
+
+
+FocusTime.requireAuth = true;

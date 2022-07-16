@@ -1,32 +1,32 @@
-import { Box, Button, Input, InputGroup, InputRightElement, Link, useToast } from '@chakra-ui/react'
+import { Box, Button, Input, InputGroup, InputRightElement, Link } from '@chakra-ui/react'
 import { Icon } from '@iconify/react'
 import LoginSignupLayout from 'components/Layouts/LoginSignupLayout'
-import type { NextPage } from 'next'
-import { signIn } from 'next-auth/react'
+import type { NextPageContext } from 'next'
+import { BuiltInProviderType } from 'next-auth/providers'
+import { ClientSafeProvider, getProviders, getSession, LiteralUnion, signIn } from 'next-auth/react'
 import NextLink from 'next/link'
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
 
 
 const INITIAL_STATE = {
     isPasswordVisible: false
 }
 
+interface SignInProps {
+    providers: Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider> | null
+}
 
-const SignIn: NextPage = () => {
+
+const SignIn = ({ providers }: SignInProps) => {
 
     const [isPasswordVisible, setPasswordVisible] = useState(INITIAL_STATE.isPasswordVisible)
-    const toast = useToast();
 
-    const handleFormSubmit = (e: FormEvent) => {
-        e.preventDefault()
-        toast({
-            title: 'WIP',
-            description: "Cannot Signin at this moment. Please use google auth instead.",
-            status: 'info',
-            duration: 3000,
-            isClosable: true,
-        })
-    }
+
+    /**
+     * * Logic for form submit
+     */
+    const handleFormSubmit = () => {}
+
 
     return (
         <LoginSignupLayout>
@@ -39,15 +39,20 @@ const SignIn: NextPage = () => {
                 {/* Username input */}
                 <Box mb={2}>
                     <Box as={"label"} htmlFor={"username"} display={"inline-block"} mb={1}>Username</Box>
-                    <Input type={"text"} id={"username"} size={"sm"} borderColor={"white"} />
+                    <Input type={"text"} id={"username"} size={"sm"} borderColor={"white"} disabled />
                 </Box>
 
                 {/* password input */}
                 <Box mb={3}>
                     <Box as={"label"} htmlFor={"password"} display={"inline-block"} mb={1}>Password</Box>
                     <InputGroup>
-                        <Input type={isPasswordVisible ? "text" : "password"} id={"password"} size={"sm"} borderColor={"white"} />
-                        <InputRightElement mt={"6px"} variant={"ghost"} padding={0} as={Button} width={"20px"} height={"20px"} onClick={() => setPasswordVisible(prev => !prev)}>
+                        <Input type={isPasswordVisible ? "text" : "password"} id={"password"} size={"sm"} borderColor={"white"} disabled/>
+                        <InputRightElement
+                            mt={"6px"}
+                            variant={"ghost"}
+                            padding={0}
+                            as={Button}
+                            width={"20px"} height={"20px"} onClick={() => setPasswordVisible(prev => !prev)}>
                             {
                                 isPasswordVisible ?
                                     <Icon icon="akar-icons:eye-open" color="white" /> :
@@ -64,6 +69,7 @@ const SignIn: NextPage = () => {
                     size={"sm"}
                     border={"1px solid white"}
                     borderRadius={"sm"}
+                    disabled
                 >
                     Sign in
                 </Button>
@@ -78,9 +84,9 @@ const SignIn: NextPage = () => {
                     border={"1px solid white"}
                     borderRadius={"sm"}
                     leftIcon={<Icon icon={"akar-icons:google-fill"} width={"18px"} height={"18px"} color={"white"} />}
-                    onClick={() => signIn()}
+                    onClick={() => signIn(providers?.google.id)}
                 >
-                    <Box as={"span"}>Continue with google</Box>
+                    <Box as={"span"}>Continue with {providers?.google.name}</Box>
                 </Button>
 
             </Box>
@@ -95,3 +101,30 @@ const SignIn: NextPage = () => {
 }
 
 export default SignIn
+
+
+
+
+
+
+export async function getServerSideProps(context: NextPageContext) {
+
+
+    const session = await getSession({ req: context.req });
+
+    // If the user is signed in, redirect them to /focus-time page 
+    if (session?.user) {
+        return {
+            redirect: {
+                destination: '/focus-time',
+                permanent: false,
+            },
+        };
+    }
+
+    // Sending providers (google in this case) to the signin route
+    const providers = await getProviders();
+    return {
+        props: { providers },
+    };
+}

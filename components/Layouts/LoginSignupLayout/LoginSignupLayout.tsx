@@ -1,15 +1,12 @@
+
+import { Alert, AlertIcon, Box, Center, HStack, StackItem } from "@chakra-ui/react";
+import Footer from "components/ui/Footer";
+import Navbar from "components/ui/Navbar";
+
+
 /* -------------------------------------------------------------------------- */
 /*                              Interface Starts                              */
 /* -------------------------------------------------------------------------- */
-
-import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
-import { Icon } from "@iconify/react";
-import Footer from "components/ui/Footer";
-import Navbar from "components/ui/Navbar";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { useRouter } from "next/router";
-
 interface LoginSignUpLayoutProps {
     children: React.ReactNode;
 }
@@ -18,21 +15,19 @@ interface LoginSignUpLayoutProps {
 
 const LoginSignupLayout = ({ children }: LoginSignUpLayoutProps) => {
 
-    const session = useSession();
-    const router = useRouter();
-
-
-    if (session.status === "authenticated") {
-        router.push("/focus-time");
-        return null;
-    }
 
     return (
         <>
             <Navbar isAuthenticated={false} />
             <Alert status='info' variant={"solid"}>
-                <AlertIcon />
-                Login and Signup via google is only available at the moment.
+                <HStack width={"100vw"} maxWidth={"8xl"} margin={"auto"} flexWrap={"wrap"}>
+                    <StackItem>
+                        <AlertIcon />
+                    </StackItem>
+                    <StackItem maxW={"100vw"} pr={4}>
+                        Login and Signup via google is only available at the moment.
+                    </StackItem>
+                </HStack>
             </Alert>
             <Center as={"main"} padding={"0px 40px"} background={"baseBackground"} minHeight={"calc(100vh - 55px)"}>
                 <Center
@@ -46,7 +41,7 @@ const LoginSignupLayout = ({ children }: LoginSignUpLayoutProps) => {
                     backgroundRepeat={"no-repeat"}
                     backgroundSize={"contain"}
                 >
-                    <Box>
+                    <Box as={"main"}>
                         {children}
                     </Box>
                 </Center>
