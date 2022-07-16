@@ -20,11 +20,11 @@ interface AuthenticatedProps {
     name: string;
 }
 
-interface NotAuthenticatedProps  {
+interface NotAuthenticatedProps {
     isAuthenticated: false;
 }
 
-type NavbarProps =  AuthenticatedProps | NotAuthenticatedProps;
+type NavbarProps = AuthenticatedProps | NotAuthenticatedProps;
 
 
 /* ----------------------------- Interface Ends ----------------------------- */
@@ -75,7 +75,7 @@ const Navbar = (props: NavbarProps) => {
 
 
     const handleLogOut = async () => {
-       await signOut();
+        await signOut();
     }
 
     return (
@@ -99,8 +99,12 @@ const Navbar = (props: NavbarProps) => {
                             )
                         }
 
-                        <StackItem as={NextLink} href={"/"} passHref >
-                            <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={"140"} height={"55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
+                        <StackItem >
+                            <NextLink href={"/"} passHref >
+                                <Box position={"relative"}>
+                                    <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={"140"} height={"55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
+                                </Box>
+                            </NextLink>
                         </StackItem>
                     </HStack>
                 </StackItem>
@@ -156,8 +160,12 @@ const Navbar = (props: NavbarProps) => {
                                     <Icon icon={"cil:hamburger-menu"} width={24} height={24} />
                                 </Button>
                             </StackItem>
-                            <StackItem height={"54px"} as={NextLink} href={"/"} passHref>
-                                <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={"140"} height={"55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
+                            <StackItem height={"54px"}>
+                                <NextLink href={"/"} passHref>
+                                    <Box position={"relative"}>
+                                        <Image src={"/svg/TimerHUT.svg"} alt={"Logo"} width={"140"} height={"55"} objectFit={"contain"} style={{ cursor: "pointer" }} />
+                                    </Box>
+                                </NextLink>
                             </StackItem>
                         </HStack>
 
