@@ -1,8 +1,8 @@
-import { Box, Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, StackItem, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, StackItem, useDisclosure, useToast } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
-import { updateTaskList } from "features/todo-slice";
-import { useAppDispatch } from "hooks/redux-hook";
+import axios from "axios";
 import { ChangeEvent, useState } from "react";
+import { useMutation, useQueryClient } from "react-query";
 import PomodoroModal from "../PomodoroModal";
 import TaskDeletionAlert from "../TaskDeletionAlert";
 
@@ -10,24 +10,36 @@ import TaskDeletionAlert from "../TaskDeletionAlert";
 /*                              Interface Starts                              */
 /* -------------------------------------------------------------------------- */
 
-interface TaskProps {
-    id: string;
-    title: string;
-    isCompleted: boolean;
-}
+interface TaskProps extends TaskListSingleTask { }
 
 
 /* ----------------------------- Interface Ends ----------------------------- */
 
 
+/* -------------------------------------------------------------------------- */
+/*                                Utils Starts                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * * This function sends api to update task status
+ * * The task status can be "COMPLETED" OR "ONGOING"
+ */
+const updateTaskStatusFn = ({ id, taskStatus }: { id: string, taskStatus: "COMPLETED" | "ONGOING" }) => {
+    return axios.put(`/api/task/update/status/${id}`, { taskStatus })
+}
+
+/* ------------------------------- Utils Ends ------------------------------- */
 
 
 
+const Task = ({ taskName, taskStatus, id }: TaskProps) => {
 
-const Task = ({ title, isCompleted, id }: TaskProps) => {
-
-    const [isCheckboxChecked, setCheckboxChecked] = useState(() => isCompleted)
-
+    const [isCheckboxChecked, setCheckboxChecked] = useState(() => taskStatus === "COMPLETED")
+    const toast = useToast({
+        position: "top-right",
+        variant: "solid",
+        duration: null
+    })
     // useDisclosure for alert modal
     const { isOpen: isDeleteModalOpen, onClose: onDeleteModalClose, onOpen: onDeleteModalOpen } = useDisclosure({
         id: "deletemodal"
@@ -38,20 +50,46 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
     })
 
 
+    /**
+     *  * Mutation hook to update task status
+     *  * After successfull update, '/api/task' is invalidated.
+     */
+    const queryClient = useQueryClient();
+    const { mutateAsync } = useMutation(updateTaskStatusFn, {
+
+        onMutate: () => {
+            toast({
+                title: "Updating task. Please wait",
+                status: "info"
+            })
+        },
+        onError: (error: { message: string }) => {
+            toast.closeAll();
+            toast({
+                title: error.message,
+                status: "error",
+                duration: 3000
+            })
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(["/api/task"])
+            toast.closeAll();
+            toast({
+                title: "Successfully updated task",
+                status: "success",
+                duration: 3000
+            })
+        }
+    })
 
 
-
-    // Redux Dispatch
-    const dispatch = useAppDispatch()
-
-
-
-    const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleCheckboxChange = async (e: ChangeEvent<HTMLInputElement>) => {
         const isChecked = e.target.checked
         setCheckboxChecked(isChecked)
+        const taskStatus = isChecked ? "COMPLETED" : "ONGOING"
 
-        // Updating the rodolist to the current isCompleted state
-        dispatch(updateTaskList({ id, isCompleted: isChecked }))
+        await  mutateAsync({id, taskStatus})
+
     }
 
 
@@ -60,13 +98,13 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
             <PomodoroModal
                 isOpen={isPomodoroModalOpen}
                 onClose={onPomodoroModalClose}
-                title={title}
+                title={taskName}
             />
             <TaskDeletionAlert
                 id={id}
                 isOpen={isDeleteModalOpen}
                 onClose={onDeleteModalClose}
-                title={title}
+                title={taskName}
             />
             <HStack
                 width={"100%"}
@@ -89,7 +127,7 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
                             </Button>
                         </StackItem>
                         <StackItem whiteSpace={"nowrap"} overflow={"hidden"} textOverflow={"ellipsis"} maxW={"50vw"}>
-                            <Box textDecoration={isCompleted ? "line-through" : "initial"} fontSize={{ base: "xs", md: "md" }}>{title}</Box>
+                            <Box textDecoration={isCheckboxChecked ? "line-through" : "initial"} fontSize={{ base: "xs", md: "md" }}>{taskName}</Box>
                         </StackItem>
                     </HStack>
                 </StackItem>
@@ -120,10 +158,3 @@ const Task = ({ title, isCompleted, id }: TaskProps) => {
 
 
 export default Task
-
-/**
- *     white-space: nowrap;
-    overflow: hidden;
-    max-width: 50vw;
-    text-overflow: ellipsis;
- */
