@@ -18,6 +18,20 @@ const authOptions: NextAuthOptions =  NextAuth({
         async jwt({ token }) {
             return token
         },
+    },
+    events: {
+        createUser: async (message) => {
+
+            // Create user detail and link it to the current user after the user is successfully created.
+            await  Prisma.userDetails.create({
+                data: {
+                    userId: message.user.id
+                }
+                
+            })
+
+        }
+
     }
 })
 
