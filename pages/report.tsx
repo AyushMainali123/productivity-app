@@ -23,8 +23,6 @@ ChartJS.register(
 
 
 
-console.log({ BarElement, Title })
-
 const Reports = () => {
     return (
         <AuthLayout>
