@@ -20,14 +20,6 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
 
     const session = useSession();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const res = await axios("/api/protected")
-            console.log({ res })
-        }
-        fetchData()
-    }, [session.data])
-
     return (
         <>
             {
