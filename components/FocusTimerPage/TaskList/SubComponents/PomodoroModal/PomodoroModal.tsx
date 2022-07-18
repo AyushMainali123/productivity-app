@@ -1,7 +1,8 @@
-import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Center, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Stack, StackItem, Tooltip, useDisclosure, VStack } from "@chakra-ui/react";
+import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Center, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
 import { format } from 'date-fns';
 import { useRef, useState } from "react";
+import { useQuery } from "react-query";
 import usePomodoro from "./usePomodoro";
 /* -------------------------------------------------------------------------- */
 /*                              Interface Starts                              */
@@ -74,8 +75,12 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
 
     const { isOpen: isPomodoroStopDialogOpen, onClose: onPomodoroStopDialogClose, onOpen: onPomodoroStopDialogOpen } = useDisclosure()
 
-    const { minuteCount, secondCount, setSessionPlaying } = usePomodoro({ breakTime: 2, sessionTime: 1, currentSession: "session" })
+    const { data: userDetailsData, isLoading: isUserDetailsDataLoading, isError: isUserDetailsDataError } = useQuery<UserDetailsApiResponse>(["/api/user"])
 
+    const { minuteCount, secondCount, setSessionPlaying } = usePomodoro({ breakTime: userDetailsData?.shortBreakLength || 5, sessionTime: userDetailsData?.pomodoroLength || 25, currentSession: "session" })
+
+
+    const toast = useToast()
 
     const handleAlertDialogClose = () => {
         onClose();
@@ -93,6 +98,24 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
         setSessionPlaying(false)
     }
 
+
+    // If userDetails fails to load, close the modal.
+    if (isUserDetailsDataError) {
+        
+        // Close all the toasts before opening a new error toast.
+        toast.closeAll();
+
+        toast({
+            title: "Error loading pomodoro details",
+            position: "top-right",
+            variant: "solid",
+            status: "error",
+            isClosable: true
+        })
+
+        // Close the modal after the toast is shown.
+        onClose();
+    }
 
     return (
         <>
@@ -121,10 +144,10 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
                     </ModalHeader>
                     <ModalBody>
                         <Center
-                            minH={{base: "350", md: "400px"}}
+                            minH={{ base: "350", md: "400px" }}
                             margin={"auto"}
                             tabIndex={-1}
-                            bgImage={{base: "none", md: "url('/images/loginsignup/clock.png')"}}
+                            bgImage={{ base: "none", md: "url('/images/loginsignup/clock.png')" }}
                             backgroundPosition={"center"}
                             backgroundRepeat={"no-repeat"}
                             backgroundSize={"contain"}
@@ -132,6 +155,7 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
                             <VStack gap={4}>
                                 <StackItem>
                                     <HStack gap={1}>
+
                                         <StackItem
                                             bg={"black.primary"}
                                             color={"#BEE3F8"}
@@ -141,7 +165,9 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
                                             fontSize={"6xl"}
                                             borderRadius={"base"}
                                         >
-                                            {minuteCount > 9 ? minuteCount : `0${minuteCount}`}
+                                            <Skeleton isLoaded={!isUserDetailsDataLoading}>
+                                                {minuteCount > 9 ? minuteCount : `0${minuteCount}`}
+                                            </Skeleton>
                                         </StackItem>
                                         <StackItem>
                                             <Icon icon="entypo:dots-two-vertical" color="white" width={30} />
@@ -155,7 +181,9 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
                                             fontSize={"6xl"}
                                             borderRadius={"base"}
                                         >
-                                            {secondCount > 9 ? secondCount : `0${secondCount}`}
+                                            <Skeleton isLoaded={!isUserDetailsDataLoading}>
+                                                {secondCount > 9 ? secondCount : `0${secondCount}`}
+                                            </Skeleton>
                                         </StackItem>
                                     </HStack>
                                 </StackItem>
@@ -170,7 +198,7 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
                             {
                                 !!isPomodoroStarted && (
                                     <Tooltip label={"Pause pomodoro"} hasArrow placement="top">
-                                        <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStop}>
+                                        <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStop} disabled={isUserDetailsDataLoading}>
                                             <Icon icon={"carbon:pause-future"} width={"40px"} />
                                         </Button>
                                     </Tooltip>
@@ -181,12 +209,12 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
                                 !isPomodoroStarted && (
                                     <>
                                         <Tooltip label={"Play Pomodoro"} hasArrow placement={"top"}>
-                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStart}>
+                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStart} disabled={isUserDetailsDataLoading}>
                                                 <Icon icon={"bi:play-circle"} fontSize={"40px"} />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip label={"End pomodoro"} hasArrow placement={"top"}>
-                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={onPomodoroStopDialogOpen}>
+                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={onPomodoroStopDialogOpen} disabled={isUserDetailsDataLoading}>
                                                 <Icon icon={"carbon:stop-outline"} fontSize={"47px"} />
                                             </Button>
                                         </Tooltip>
