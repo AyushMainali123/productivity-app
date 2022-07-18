@@ -15,9 +15,9 @@ const authOptions: NextAuthOptions =  NextAuth({
     ],
     secret: process.env.SECRET,
     callbacks: {
-        async jwt({ token }) {
-            return token
-        },
+        session: async ({ session, user }) => {
+            return {...session, user: {...session.user, id: user.id || ""}};
+        }
     },
     events: {
         createUser: async (message) => {
