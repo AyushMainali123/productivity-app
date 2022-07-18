@@ -100,11 +100,16 @@ const Task = ({ taskName, taskStatus, id, isDummy }: TaskProps) => {
 
     return (
         <>
-            <PomodoroModal
-                isOpen={isPomodoroModalOpen}
-                onClose={onPomodoroModalClose}
-                title={taskName}
-            />
+            {
+                !!isPomodoroModalOpen && (
+                    <PomodoroModal
+                        isOpen={isPomodoroModalOpen}
+                        onClose={onPomodoroModalClose}
+                        title={taskName}
+                    />
+                )
+            }
+
             <TaskDeletionAlert
                 id={id}
                 isOpen={isDeleteModalOpen}
