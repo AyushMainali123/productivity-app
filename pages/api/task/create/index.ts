@@ -22,7 +22,7 @@ export default async function handler(
         // Find user with the current email.
         const currentLoggedInUser = await Prisma.user.findUnique({
             where: {
-                email: token.user?.email || ""
+                id: token.user?.id || ""
             },
             select: {
                 id: true,
