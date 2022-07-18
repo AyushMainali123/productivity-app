@@ -21,13 +21,15 @@ export default async function handler(
 
         const completedTaskList = await Prisma.task.findMany({
             where: {
-                taskStatus: "COMPLETED"
+                taskStatus: "COMPLETED",
+                userId: token.user.id
             }
         })
 
         const onGoingTaskList = await Prisma.task.findMany({
             where: {
-                taskStatus: "ONGOING"
+                taskStatus: "ONGOING",
+                userId: token.user.id
             }
         })
 
