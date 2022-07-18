@@ -3,6 +3,7 @@ import axios from "axios";
 import Footer from "components/ui/Footer";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
+import { useQueryClient } from "react-query";
 import Navbar from "../../ui/Navbar";
 
 /* -------------------------------------------------------------------------- */
@@ -19,6 +20,13 @@ interface AuthLayoutProps {
 const AuthLayout = ({ children }: AuthLayoutProps) => {
 
     const session = useSession();
+
+    const queryClient = useQueryClient()
+
+
+    useEffect(() => {
+        queryClient.prefetchQuery(["/api/user"])
+    }, [queryClient])
 
     return (
         <>
