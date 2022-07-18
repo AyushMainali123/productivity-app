@@ -28,7 +28,10 @@ const defaultQueryFn = async ({ queryKey }: { queryKey: QueryKey }) => {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: defaultQueryFn
+      queryFn: defaultQueryFn,
+      cacheTime: 10 * 60 * 1000,  // 10 minutes cache time for each query by default
+      staleTime: 5 * 60 * 1000// 5 minutes cache time for each query by default
+  
     },
   },
 });
