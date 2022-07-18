@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, StackItem, useDisclosure, useToast } from "@chakra-ui/react";
+import { Box, Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, Skeleton, StackItem, useDisclosure, useToast } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { ChangeEvent, useState } from "react";
@@ -10,7 +10,12 @@ import TaskDeletionAlert from "../TaskDeletionAlert";
 /*                              Interface Starts                              */
 /* -------------------------------------------------------------------------- */
 
-interface TaskProps extends TaskListSingleTask { }
+
+// isDummy: true indicates the component is loading. Thus, renders skeleton to show loading state.
+interface TaskProps extends TaskListSingleTask {
+    isDummy?: boolean;
+ }
+
 
 
 /* ----------------------------- Interface Ends ----------------------------- */
@@ -32,7 +37,7 @@ const updateTaskStatusFn = ({ id, taskStatus }: { id: string, taskStatus: "COMPL
 
 
 
-const Task = ({ taskName, taskStatus, id }: TaskProps) => {
+const Task = ({ taskName, taskStatus, id, isDummy }: TaskProps) => {
 
     const [isCheckboxChecked, setCheckboxChecked] = useState(() => taskStatus === "COMPLETED")
     const toast = useToast({
@@ -88,7 +93,7 @@ const Task = ({ taskName, taskStatus, id }: TaskProps) => {
         setCheckboxChecked(isChecked)
         const taskStatus = isChecked ? "COMPLETED" : "ONGOING"
 
-        await  mutateAsync({id, taskStatus})
+        await mutateAsync({ id, taskStatus })
 
     }
 
@@ -119,33 +124,43 @@ const Task = ({ taskName, taskStatus, id }: TaskProps) => {
                 <StackItem>
                     <HStack gap={{ base: 1, md: 4 }}>
                         <StackItem display={"flex"}>
-                            <Checkbox defaultChecked={isCheckboxChecked} checked={isCheckboxChecked} onChange={handleCheckboxChange} size={"lg"} />
+                            <Skeleton isLoaded={!isDummy}>
+                                <Checkbox defaultChecked={isCheckboxChecked} checked={isCheckboxChecked} onChange={handleCheckboxChange} size={"lg"} />
+                            </Skeleton>
                         </StackItem>
                         <StackItem>
-                            <Button onClick={onPomodoroModalOpen} background={"#2F4048"} py={0} height={"28px"} borderRadius={"base"} fontSize={{ base: "xs", md: "md" }}>
-                                Start
-                            </Button>
+                            <Skeleton isLoaded={!isDummy}>
+                                <Button onClick={onPomodoroModalOpen} background={"#2F4048"} py={0} height={"28px"} borderRadius={"base"} fontSize={{ base: "xs", md: "md" }}>
+                                    Start
+                                </Button>
+                            </Skeleton>
                         </StackItem>
                         <StackItem whiteSpace={"nowrap"} overflow={"hidden"} textOverflow={"ellipsis"} maxW={"50vw"}>
-                            <Box textDecoration={isCheckboxChecked ? "line-through" : "initial"} fontSize={{ base: "xs", md: "md" }}>{taskName}</Box>
+                            <Skeleton isLoaded={!isDummy}>
+                                <Box textDecoration={isCheckboxChecked ? "line-through" : "initial"} fontSize={{ base: "xs", md: "md" }}>{taskName}</Box>
+                            </Skeleton>
                         </StackItem>
                     </HStack>
                 </StackItem>
 
                 <StackItem>
                     <HStack gap={1}>
-                        <StackItem>4hr 33min</StackItem>
+                        <Skeleton isLoaded={!isDummy}>
+                            <StackItem>4hr 33min</StackItem>
+                        </Skeleton>
                         <StackItem>
-                            <Menu>
-                                <MenuButton as={Button} variant={"ghost"} height={"30px"}>
-                                    <Icon icon="bx:dots-vertical-rounded" fontSize={"16px"} />
-                                </MenuButton>
-                                <MenuList bg={"black.primary"}>
-                                    <MenuItem onClick={() => onDeleteModalOpen()} fontSize={{ base: "xs", md: "md" }}>
-                                        Delete
-                                    </MenuItem>
-                                </MenuList>
-                            </Menu>
+                            <Skeleton isLoaded={!isDummy}>
+                                <Menu>
+                                    <MenuButton as={Button} variant={"ghost"} height={"30px"}>
+                                        <Icon icon="bx:dots-vertical-rounded" fontSize={"16px"} />
+                                    </MenuButton>
+                                    <MenuList bg={"black.primary"}>
+                                        <MenuItem onClick={() => onDeleteModalOpen()} fontSize={{ base: "xs", md: "md" }}>
+                                            Delete
+                                        </MenuItem>
+                                    </MenuList>
+                                </Menu>
+                            </Skeleton>
                         </StackItem>
                     </HStack>
 

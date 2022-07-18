@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Skeleton, VStack } from "@chakra-ui/react";
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Skeleton, StackItem, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import Task from "./SubComponents/Task";
@@ -8,6 +8,19 @@ const INITIAL_STATE = {
     shouldShowCompletedTasks: true
 }
 
+
+// Pass this data to <Task /> component if the '/api/task' is in loading state
+// isDummy: true makes the component to render skeletons to indicate loading of datas.
+const dummyTaskListData = {
+    createdAt: new Date("2022-07-18T11:16:29.867Z"),
+    updatedAt: new Date("2022-07-18T11:16:29.868Z"),
+    id: "test",
+    taskName: "test",
+    userId: "test",
+    taskStatus: "ONGOING" as "ONGOING",
+    breakAfter: 99,
+    isDummy: true
+}
 
 const TaskList = () => {
 
@@ -33,17 +46,20 @@ const TaskList = () => {
         <Box mt={{ base: "20px", md: "30px", lg: "60px" }}>
             <Box as={"h4"} fontSize={"md"} fontWeight={"medium"} mb={{ base: "12px", md: "16px", lg: "20px" }} ml={{ base: "12px", md: 0 }}>TASKS</Box>
 
+            
+            {/* If the tasks are in loading state, show the loading state by passing dummyTaskListData */}
             {
                 !!isTaskListLoading && (
-                    <>
-                        <Skeleton height={"50px"} borderRadius={{ base: "none", lg: "base" }} mb={3} />
-                        <Skeleton height={"50px"} borderRadius={{ base: "none", lg: "base" }} mb={3} />
-                        <Skeleton height={"50px"} borderRadius={{ base: "none", lg: "base" }} mb={3} />
-                        <Skeleton height={"50px"} borderRadius={{ base: "none", lg: "base" }} mb={3} />
-                    </>
+                    <VStack gap={3}>
+                        {
+                            Array.from({length: 5}).map((_, i) => (<Task {...dummyTaskListData} key={i} />))
+                        }
+
+                    </VStack>
                 )
             }
 
+            {/* <Task {...dummyTaskListData} /> */}
             {/* If all the tasks are completed: Show this message */}
             {
                 (taskListsData?.onGoingTaskList.length === 0 && (
@@ -77,7 +93,7 @@ const TaskList = () => {
                     </Button>
                 )
             }
-           
+
 
             {/* Show completed tasks if the "shouldShowCompletedTasks" is true */}
             {
