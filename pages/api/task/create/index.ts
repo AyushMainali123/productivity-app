@@ -50,7 +50,7 @@ export default async function handler(
             data: {
                 taskName,
                 userId: currentLoggedInUser.id,
-                breakAfter: currentLoggedInUser.userDetails?.pomodoroLength || 25
+                longBreakAfter: currentLoggedInUser.userDetails?.longBreakAfter || 4
             }
         })
 

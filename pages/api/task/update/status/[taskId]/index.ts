@@ -38,9 +38,7 @@ export default async function handler(
         })
 
         if (updatedTask) {
-            res.send({
-                updated: true
-            })
+            res.send({...updatedTask})
             res.end()
             return;
         }

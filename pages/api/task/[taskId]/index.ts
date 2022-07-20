@@ -3,9 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
 
-interface Data {
-
-}
+interface Data {}
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,27 +17,25 @@ export default async function handler(
     }
     if (req.method === "GET") {
 
-        const completedTaskList = await Prisma.task.findMany({
+        const { taskId } = req.query;
+
+        const currentTask = await Prisma.task.findUnique({
             where: {
-                taskStatus: "COMPLETED",
-                userId: token.user.id
+                id: (taskId || "") as string
             },
             include: {
                 workSession: true
             }
         })
 
-        const onGoingTaskList = await Prisma.task.findMany({
-            where: {
-                taskStatus: "ONGOING",
-                userId: token.user.id
-            },
-            include: {
-                workSession: true
-            }
-        })
+
+        if (!currentTask) {
+            res.status(400).send({ message: "Couldnot find task" })
+            return;
+        }
+
         
-        res.send({ completedTaskList, onGoingTaskList })
+        res.send({ ...currentTask })
 
     }
 }
