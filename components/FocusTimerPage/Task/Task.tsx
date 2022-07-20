@@ -5,6 +5,7 @@ import { ChangeEvent, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import PomodoroModal from "../PomodoroModal";
 import TaskDeletionAlert from "../TaskDeletionAlert";
+import { getTotalCompletedPercentage } from "./Task.utils";
 
 /* -------------------------------------------------------------------------- */
 /*                              Interface Starts                              */
@@ -14,7 +15,7 @@ import TaskDeletionAlert from "../TaskDeletionAlert";
 // isDummy: true indicates the component is loading. Thus, renders skeleton to show loading state.
 interface TaskProps extends TaskListSingleTask {
     isDummy?: boolean;
- }
+}
 
 
 
@@ -37,7 +38,7 @@ const updateTaskStatusFn = ({ id, taskStatus }: { id: string, taskStatus: "COMPL
 
 
 
-const Task = ({ taskName, taskStatus, id, isDummy }: TaskProps) => {
+const Task = ({ taskName, taskStatus, id, isDummy, workSession }: TaskProps) => {
 
     const [isCheckboxChecked, setCheckboxChecked] = useState(() => taskStatus === "COMPLETED")
     const toast = useToast({
@@ -97,7 +98,6 @@ const Task = ({ taskName, taskStatus, id, isDummy }: TaskProps) => {
 
     }
 
-
     return (
         <>
             {
@@ -106,6 +106,7 @@ const Task = ({ taskName, taskStatus, id, isDummy }: TaskProps) => {
                         isOpen={isPomodoroModalOpen}
                         onClose={onPomodoroModalClose}
                         title={taskName}
+                        taskId={id}
                     />
                 )
             }
@@ -141,6 +142,7 @@ const Task = ({ taskName, taskStatus, id, isDummy }: TaskProps) => {
                             </Skeleton>
                         </StackItem>
                         <StackItem whiteSpace={"nowrap"} overflow={"hidden"} textOverflow={"ellipsis"} maxW={"50vw"}>
+
                             <Skeleton isLoaded={!isDummy}>
                                 <Box textDecoration={isCheckboxChecked ? "line-through" : "initial"} fontSize={{ base: "xs", md: "md" }}>{taskName}</Box>
                             </Skeleton>
@@ -150,9 +152,27 @@ const Task = ({ taskName, taskStatus, id, isDummy }: TaskProps) => {
 
                 <StackItem>
                     <HStack gap={1}>
-                        <Skeleton isLoaded={!isDummy}>
-                            <StackItem>4hr 33min</StackItem>
-                        </Skeleton>
+                        <StackItem>
+                            {/* Type One of showing data*/}
+                            {/* This is commented for now and typew two is shown */}
+                            {/* {
+                                            workSession.map((session, index) => (
+                                                <Icon icon={"icon-park-outline:timer"} width={22} height={22} opacity={session.isSessionCompleted ? 1 : 0.4} color={"#fff"} key={index} />
+                                            ))
+                                        } */}
+
+                            {/* Type Two of showing data */}
+                            <HStack alignItems={"center"} mt={1}>
+                                <StackItem>
+                                    <Skeleton isLoaded={!isDummy}>
+                                        {getTotalCompletedPercentage(workSession)}
+                                    </Skeleton>
+                                </StackItem>
+                                <StackItem>
+                                    <Icon icon={"icon-park-outline:timer"} width={22} height={22} color={"#fff"} />
+                                </StackItem>
+                            </HStack>
+                        </StackItem>
                         <StackItem>
                             <Skeleton isLoaded={!isDummy}>
                                 <Menu>

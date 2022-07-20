@@ -1,64 +1,25 @@
-import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Center, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VStack } from "@chakra-ui/react";
+import { Box, Button, Center, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
+import { SessionEntity, Task, WorkSession } from "@prisma/client";
 import { format } from 'date-fns';
 import { useRef, useState } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import PomodoroCloseAlertDialog from "../PomodoroCloseAlertDialog";
+import { createSessionEntityMutationFn, createWorkSessionMutationFn, endWorkSessionMutationFn, resetTaskLongBreak, stopSessionEntityMutationFn } from "./PomodoroModal.utils";
 import usePomodoro from "./usePomodoro";
 /* -------------------------------------------------------------------------- */
 /*                              Interface Starts                              */
 /* -------------------------------------------------------------------------- */
 
-
 interface PomodoroModalProps {
     isOpen: boolean;
     onClose: () => void;
     title: string;
-}
-
-interface PomodoroCloseAlertDialogProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onCancel: () => void;
+    taskId: string;
 }
 
 /* ----------------------------- Interface Ends ----------------------------- */
 
-
-/* -------------------------------------------------------------------------- */
-/*                            Sub Component Starts                            */
-/* -------------------------------------------------------------------------- */
-
-const PomodoroCloseAlertDialog = ({ isOpen, onClose, onCancel }: PomodoroCloseAlertDialogProps) => {
-
-    const cancelRef = useRef<HTMLButtonElement>(null)
-
-
-    return (
-        <AlertDialog
-            isOpen={isOpen}
-            onClose={onCancel}
-            leastDestructiveRef={cancelRef}
-        >
-            <AlertDialogOverlay />
-            <AlertDialogContent>
-                <AlertDialogHeader>Close the pomodoro</AlertDialogHeader>
-                <AlertDialogCloseButton />
-                <AlertDialogBody>
-                    Are you sure you want to stop the pomodoro? You have to start new session after the pomodoro is closed.
-                </AlertDialogBody>
-                <AlertDialogFooter>
-                    <HStack gap={2}>
-                        <Button ref={cancelRef} onClick={onCancel}>Cancel</Button>
-                        <Button onClick={onClose} colorScheme={"red"}>End session</Button>
-                    </HStack>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-    )
-}
-
-
-/* --------------------------- Sub Component Ends --------------------------- */
 
 
 /* -------------------------------------------------------------------------- */
@@ -69,46 +30,192 @@ const INITIAL_STATE = {
     isPomodoroStarted: false
 }
 
-const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
+const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) => {
 
     const [isPomodoroStarted, setPomodoroStarted] = useState(() => INITIAL_STATE.isPomodoroStarted)
 
-    const { isOpen: isPomodoroStopDialogOpen, onClose: onPomodoroStopDialogClose, onOpen: onPomodoroStopDialogOpen } = useDisclosure()
+    const toast = useToast({
+        position: "top-right",
+        variant: "solid"
+    })
 
-    const { data: userDetailsData, isLoading: isUserDetailsDataLoading, isError: isUserDetailsDataError } = useQuery<UserDetailsApiResponse>(["/api/user"])
+    const {
+        isOpen: isPomodoroStopDialogOpen,
+        onClose: onPomodoroStopDialogClose,
+        onOpen: onPomodoroStopDialogOpen
+    } = useDisclosure()
 
-    const { minuteCount, secondCount, setSessionPlaying } = usePomodoro({ breakTime: userDetailsData?.shortBreakLength || 5, sessionTime: userDetailsData?.pomodoroLength || 25, currentSession: "session" })
+    const {
+        data: userDetailsData,
+        isLoading: isUserDetailsDataLoading,
+        isError: isUserDetailsDataError
+    } = useQuery<UserDetailsApiResponse>(["/api/user"])
+
+    const { minuteCount, secondCount, setSessionPlaying } = usePomodoro({
+        breakTime: userDetailsData?.shortBreakLength || 5,
+        sessionTime: userDetailsData?.pomodoroLength || 25,
+        currentSession: "session"
+    })
+
+    const {
+        data: taskDetailsData,
+        isLoading: isTaskDetailsLoading,
+        isError: isTaskDetailsError
+    } = useQuery<TaskListSingleTask>([`/api/task/${taskId}`])
+
+    const queryClient = useQueryClient();
+
+    const {
+        mutateAsync: createWorkSessionMutateAsync,
+        isLoading: isCreatingWorkSession
+    } = useMutation(createWorkSessionMutationFn, {
+        // After the mutation is completed, this function is executed at the top priority.
+        onSuccess: (data) => {
+            onGoingSession.current = data.data;
+            queryClient.invalidateQueries([`/api/task/${taskId}`])
+        },
+        onError: (error: { message: string }) => {
+            toast({
+                title: error.message || "Failed to start the session. This session will not be saved",
+                status: "error"
+            })
+        }
+    });
 
 
-    const toast = useToast()
+    const {
+        mutateAsync: createSessionEntityMutateAsync
+    } = useMutation(createSessionEntityMutationFn, {
+        // After the mutation is completed, this function is executed at the top priority.
+        onSuccess: (data) => {
+            currentSessionEntity.current = data.data;
+            queryClient.invalidateQueries([`/api/task/${taskId}`])
+        }
+    })
 
-    const handleAlertDialogClose = () => {
+
+    const {
+        mutateAsync: stopSessionEntityMutateAsync
+    } = useMutation(stopSessionEntityMutationFn, {
+        onSuccess: (data) => {
+            currentSessionEntity.current = data.data;
+            queryClient.invalidateQueries([`/api/task/${taskId}`])
+        }
+    })
+
+
+    const { mutateAsync: endWorkSessionMutateAsync, isLoading: isEndingWorkSession } = useMutation(endWorkSessionMutationFn, {
+        onSuccess: (data) => {
+            onGoingSession.current = data.data;
+            queryClient.invalidateQueries([`/api/task/${taskId}`])
+            queryClient.invalidateQueries([`/api/task`]);
+        }
+    })
+
+
+    const { mutateAsync: resetTaskLongBreakMutateAsync, isLoading: isResettingLongBreak } = useMutation(resetTaskLongBreak, {
+        onSuccess: (data) => {
+            queryClient.setQueryData<Task>([`/api/task/update/break/reset/${taskId}`], () => ({
+                ...data.data
+            }))
+        }
+    })
+
+    // This reference tracks if the pomodoro is rendered first time
+    const isRenderedFirstTime = useRef(true);
+
+    // This reference tracks ongoing pomodoro session
+    const onGoingSession = useRef<WorkSession | null>(null);
+
+    // This reference tracks current session entity
+    const currentSessionEntity = useRef<SessionEntity | null>(null);
+
+
+    /**
+     * * This function runs when the user closes the modal
+     * * This function plays the pomodoro timer and calls all the required api endpoints
+     */ 
+    const handleAlertDialogClose = async () => {
+
         onClose();
         onPomodoroStopDialogClose();
+
+        await endWorkSessionMutateAsync({
+            isSessionCompleted: false,
+            sessionId: onGoingSession.current?.id || ""
+        })
+
+        await resetTaskLongBreakMutateAsync({
+            taskId
+        })
     }
 
+    /**
+     * * This function runs when the user clicks the play button
+     * * This function plays the pomodoro timer and calls all the required api endpoints
+     */
+    const handlePomodoroStart = async () => {
 
-    const handlePomodoroStart = () => {
         setPomodoroStarted(true)
         setSessionPlaying(true)
+
+
+        // This is the time, play button was clicked.
+        const startTime = new Date();
+
+
+        // If play button was created for the first time, create a work session.
+        if (isRenderedFirstTime.current) {
+
+            isRenderedFirstTime.current = false;
+
+            await createWorkSessionMutateAsync({
+                sessionType: "WORK_SESSION",
+                taskId,
+                isSessionStarted: true
+            })
+
+        }
+
+        await createSessionEntityMutateAsync({
+            sessionId: onGoingSession.current?.id || "",
+            timeStart: startTime
+        })
+
+
     }
 
-    const handlePomodoroStop = () => {
+    /**
+     * * This function runs when the user clicks the pause button
+     * * This function pauses the pomodoro timer and calls all the required api endpoints
+     */
+    const handlePomodoroStop = async () => {
         setPomodoroStarted(false)
         setSessionPlaying(false)
+
+
+        // This is the time, pause button was clicked.
+        const timeEnd = new Date();
+
+
+        await stopSessionEntityMutateAsync({
+            entityId: currentSessionEntity.current?.id || "",
+            sessionId: onGoingSession.current?.id || "",
+            timeEnd
+        })
+
+
     }
 
 
-    // If userDetails fails to load, close the modal.
-    if (isUserDetailsDataError) {
-        
+    // If userDetails or taskDetails fails to load, close the modal.
+    if (isUserDetailsDataError || isTaskDetailsError) {
+
         // Close all the toasts before opening a new error toast.
         toast.closeAll();
 
         toast({
             title: "Error loading pomodoro details",
-            position: "top-right",
-            variant: "solid",
             status: "error",
             isClosable: true
         })
@@ -117,19 +224,21 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
         onClose();
     }
 
+
     return (
         <>
             <PomodoroCloseAlertDialog
                 isOpen={isPomodoroStopDialogOpen}
                 onClose={handleAlertDialogClose}
                 onCancel={onPomodoroStopDialogClose}
+                isClosing={isEndingWorkSession || isResettingLongBreak}
             />
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
                 closeOnOverlayClick={false}
             >
-                <ModalOverlay />
+                <ModalOverlay backdropFilter='blur(10px)' />
                 <ModalContent bgColor={"baseBackground"}>
                     <ModalHeader bg={"black.primary"}>
                         <Stack direction={{ base: "column", md: "row" }} justifyContent={"space-between"} gap={1}>
@@ -137,8 +246,11 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
                                 {title}
                             </StackItem>
                             <StackItem display={"flex"} gap={1} flex={0.4} flexWrap={"wrap"} justifyContent={"flex-end"}>
-                                <Icon icon={"icon-park-outline:timer"} width={22} height={22} color={"#51636E"} />
-                                <Icon icon={"icon-park-outline:timer"} width={22} height={22} color={"#BEE3F8"} />
+                                <Skeleton isLoaded={!isTaskDetailsLoading}>
+                                    {
+                                        taskDetailsData && (taskDetailsData?.workSession).map(session => <Icon icon={"icon-park-outline:timer"} width={22} height={22} color={"#BEE3F8"} key={session.id} opacity={session.completedPercentage / 100} />)
+                                    }
+                                </Skeleton>
                             </StackItem>
                         </Stack>
                     </ModalHeader>
@@ -209,12 +321,12 @@ const PomodoroModal = ({ isOpen, onClose, title }: PomodoroModalProps) => {
                                 !isPomodoroStarted && (
                                     <>
                                         <Tooltip label={"Play Pomodoro"} hasArrow placement={"top"}>
-                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStart} disabled={isUserDetailsDataLoading}>
+                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStart} disabled={isUserDetailsDataLoading || isCreatingWorkSession}>
                                                 <Icon icon={"bi:play-circle"} fontSize={"40px"} />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip label={"End pomodoro"} hasArrow placement={"top"}>
-                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={onPomodoroStopDialogOpen} disabled={isUserDetailsDataLoading}>
+                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={onPomodoroStopDialogOpen} disabled={isUserDetailsDataLoading || isCreatingWorkSession}>
                                                 <Icon icon={"carbon:stop-outline"} fontSize={"47px"} />
                                             </Button>
                                         </Tooltip>
