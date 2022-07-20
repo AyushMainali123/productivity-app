@@ -1,5 +1,5 @@
 
-type TaskStatus = "ONGOING" | "COMPLETED" | "DELETED"
+
 
 interface TaskListSingleTask {
     createdAt: Date
@@ -9,6 +9,7 @@ interface TaskListSingleTask {
     userId: string
     taskStatus: TaskStatus
     breakAfter: number
+    workSession: WorkSessionApiResponse[]
 }
 
 interface TaskListApiResponse {
