@@ -71,15 +71,21 @@ const SideNavDatas = ({ datas }: { datas: typeof navDatas }) => {
 const Navbar = (props: NavbarProps) => {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const isPCScreen = useBreakpointValue({ base: false, lg: true })
+    const isPCScreen = useBreakpointValue({ base: false, md: true })
 
 
     const handleLogOut = async () => {
         await signOut();
     }
 
+    console.log({name: props.isAuthenticated ? props.name : "Not authenticated", isPCScreen})
+
     return (
-        <Box as={"nav"} px={{ base: "12px", md: "30px" }} bgColor={"black.primary"} >
+        <Box
+            as={"nav"}
+            // px={{ base: "12px", md: "35px" }}
+            px={"10px"}
+            bgColor={"black.primary"} >
 
             {/* Top Navigation Starts */}
             <HStack justifyContent={"space-between"} maxWidth={"8xl"} margin={"auto"}>

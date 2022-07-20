@@ -1,7 +1,7 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Skeleton, StackItem, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 import { useQuery } from "react-query";
-import Task from "./SubComponents/Task";
+import Task from "../Task";
 
 
 const INITIAL_STATE = {
@@ -19,7 +19,8 @@ const dummyTaskListData = {
     userId: "test",
     taskStatus: "ONGOING" as "ONGOING",
     breakAfter: 99,
-    isDummy: true
+    isDummy: true,
+    workSession: [] as WorkSessionApiResponse[]
 }
 
 const TaskList = () => {
@@ -44,7 +45,7 @@ const TaskList = () => {
 
     return (
         <Box mt={{ base: "20px", md: "30px", lg: "60px" }}>
-            <Box as={"h4"} fontSize={"md"} fontWeight={"medium"} mb={{ base: "12px", md: "16px", lg: "20px" }} ml={{ base: "12px", md: 0 }}>TASKS</Box>
+            <Box as={"h4"} fontSize={"md"} fontWeight={"medium"} mb={{ base: "12px", md: "16px", lg: "20px" }}>TASKS</Box>
 
             
             {/* If the tasks are in loading state, show the loading state by passing dummyTaskListData */}
@@ -100,7 +101,7 @@ const TaskList = () => {
                 !!shouldShowCompletedTasks && (
                     <VStack gap={3}>
                         {
-                            taskListsData?.completedTaskList.map((task) => (<Task {...task} key={task.id} />))
+                            taskListsData?.completedTaskList.map((task) => (<Task {...task}  key={task.id} />))
                         }
                     </VStack>
                 )

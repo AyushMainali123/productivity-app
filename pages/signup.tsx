@@ -67,6 +67,7 @@ const SignUp = ({ providers }: SignUpProps) => {
                     size={"sm"}
                     border={"1px solid white"}
                     borderRadius={"sm"}
+                    disabled={true}
                 >
                     Signup
                 </Button>
