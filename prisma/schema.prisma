@@ -79,31 +79,38 @@ model Task {
   userDetails UserDetails   @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId      String        
   taskStatus  TASKSTATUS    @default(ONGOING)
-  breakAfter  Int           
+  longBreakAfter  Int           
   workSession WorkSession[]
 }
 
+
+// It is one whole session
 model WorkSession {
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  id                 String        @id @default(cuid())
-  sessionType        SESSIONTYPE
-  isSessionStarted   Boolean
-  isSessionCompleted Boolean
-  sessionHistory     SessionEntity[]
-  task               Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  taskId             String          @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  id                  String        @id @default(cuid())
+  sessionType         SESSIONTYPE
+  sessionLength       Int
+  isSessionStarted    Boolean       @default(false)
+  isSessionCompleted  Boolean       @default(false)
+  isSessionOngoing    Boolean       @default(true)
+  completedPercentage Float           @default(0)
+  sessionHistory      SessionEntity[]
+  task                Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId              String          @unique
 }
 
+
+// Entitiy of a single session
 model SessionEntity {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   id        String      @id @default(cuid())
   mode      MODE        @default(PAUSE)
   timeStart DateTime
-  timeEnd   DateTime
+  timeEnd   DateTime?
   session   WorkSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  sessionId String      @unique
+  sessionId String      
 }
 
 enum TASKSTATUS {
