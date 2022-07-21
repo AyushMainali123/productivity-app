@@ -1,4 +1,4 @@
-import { Box, Button, Center, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VStack } from "@chakra-ui/react";
+import { Box, Button, Center, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VisuallyHidden, VStack } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
 import { SessionEntity, Task, WorkSession } from "@prisma/client";
 import { format } from 'date-fns';
@@ -134,7 +134,7 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
     /**
      * * This function runs when the user closes the modal
      * * This function plays the pomodoro timer and calls all the required api endpoints
-     */ 
+     */
     const handleAlertDialogClose = async () => {
 
         onClose();
@@ -246,10 +246,14 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                                 {title}
                             </StackItem>
                             <StackItem display={"flex"} gap={1} flex={0.4} flexWrap={"wrap"} justifyContent={"flex-end"}>
-                                <Skeleton isLoaded={!isTaskDetailsLoading}>
-                                    {
-                                        taskDetailsData && (taskDetailsData?.workSession).map(session => <Icon icon={"icon-park-outline:timer"} width={22} height={22} color={"#BEE3F8"} key={session.id} opacity={session.completedPercentage / 100} />)
-                                    }
+                                <Skeleton isLoaded={!isTaskDetailsLoading} >
+                                    <HStack >
+                                        {
+                                            taskDetailsData ?
+                                                (taskDetailsData?.workSession).map(session => <Icon icon={"icon-park-outline:timer"} width={22} height={22} color={"#BEE3F8"} key={session.id} opacity={session.completedPercentage / 100} />) :
+                                                <Box as={ "span"}>Loading... <VisuallyHidden>Loading task details</VisuallyHidden></Box>
+                                        }
+                                    </HStack>
                                 </Skeleton>
                             </StackItem>
                         </Stack>
