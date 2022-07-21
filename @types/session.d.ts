@@ -5,5 +5,6 @@ interface WorkSessionApiResponse {
   sessionType:        SessionType
   isSessionStarted:   boolean
   isSessionCompleted: boolean
+  isSessionOngoing: boolean 
   completedPercentage: number  
 }
