@@ -93,7 +93,7 @@ const SignIn = ({ providers }: SignInProps) => {
             <Box as={"p"} mt={6} fontSize={"lg"} textAlign={"center"}>
                 <Box as={"span"} mr={1}>Dont have an account?</Box>
                 <NextLink href={"/signup"} passHref>
-                    <Link color={"#BEE3F8"}>Signup</Link>
+                    <Link color={"#BEE3F8"}>Sign up</Link>
                 </NextLink>
             </Box>
         </LoginSignupLayout>
