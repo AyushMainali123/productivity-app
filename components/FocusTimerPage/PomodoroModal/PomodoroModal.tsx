@@ -141,6 +141,9 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
         onClose();
         onPomodoroStopDialogClose();
 
+        // If the session is not started end the pomodoro
+        if (!onGoingSession.current) return;
+
         await endWorkSessionMutateAsync({
             isSessionCompleted: false,
             sessionId: onGoingSession.current?.id || ""
