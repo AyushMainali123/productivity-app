@@ -78,8 +78,6 @@ const Navbar = (props: NavbarProps) => {
         await signOut();
     }
 
-    console.log({name: props.isAuthenticated ? props.name : "Not authenticated", isPCScreen})
-
     return (
         <Box
             as={"nav"}
