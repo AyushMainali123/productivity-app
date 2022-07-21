@@ -131,7 +131,7 @@ const Task = ({ taskName, taskStatus, id, isDummy, workSession }: TaskProps) => 
                     <HStack gap={{ base: 1, md: 4 }}>
                         <StackItem display={"flex"}>
                             <Skeleton isLoaded={!isDummy}>
-                                <Checkbox defaultChecked={isCheckboxChecked} checked={isCheckboxChecked} onChange={handleCheckboxChange} size={"lg"} />
+                                <Checkbox defaultChecked={isCheckboxChecked} checked={isCheckboxChecked} onChange={handleCheckboxChange} size={"lg"} mt={"2px"} />
                             </Skeleton>
                         </StackItem>
                         <StackItem>
@@ -168,7 +168,7 @@ const Task = ({ taskName, taskStatus, id, isDummy, workSession }: TaskProps) => 
                                         {getTotalCompletedPercentage(workSession)}
                                     </Skeleton>
                                 </StackItem>
-                                <StackItem>
+                                <StackItem mb={"1px"}>
                                     <Icon icon={"icon-park-outline:timer"} width={22} height={22} color={"#fff"} />
                                 </StackItem>
                             </HStack>
