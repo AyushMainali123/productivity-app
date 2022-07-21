@@ -1,4 +1,4 @@
-import { Box, Button, Center, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VisuallyHidden, VStack } from "@chakra-ui/react";
+import { Box, Button, Center, chakra, Fade, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VisuallyHidden, VStack } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
 import { SessionEntity, Task, WorkSession } from "@prisma/client";
 import { format } from 'date-fns';
@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import PomodoroCloseAlertDialog from "../PomodoroCloseAlertDialog";
 import { createSessionEntityMutationFn, createWorkSessionMutationFn, endWorkSessionMutationFn, resetTaskLongBreak, stopSessionEntityMutationFn } from "./PomodoroModal.utils";
 import usePomodoro from "./usePomodoro";
+import { getTotalCompletedPercentage } from "../Task/Task.utils";
 /* -------------------------------------------------------------------------- */
 /*                              Interface Starts                              */
 /* -------------------------------------------------------------------------- */
@@ -248,12 +249,19 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                             <StackItem display={"flex"} gap={1} flex={0.4} flexWrap={"wrap"} justifyContent={"flex-end"}>
                                 <Skeleton isLoaded={!isTaskDetailsLoading} >
                                     <HStack >
-                                        {
-                                            taskDetailsData ?
-                                                (taskDetailsData?.workSession).map(session => <Icon icon={"icon-park-outline:timer"} width={22} height={22} color={"#BEE3F8"} key={session.id} opacity={session.completedPercentage / 100} />) :
-                                                <Box as={ "span"}>Loading... <VisuallyHidden>Loading task details</VisuallyHidden></Box>
-                                        }
+                                        <StackItem fontWeight={"light"} fontSize={"md"}>
+                                            {getTotalCompletedPercentage(taskDetailsData?.workSession || [])}
+                                        </StackItem>
+                                        <StackItem>
+                                            <Icon
+                                                icon={"icon-park-outline:timer"}
+                                                width={22}
+                                                height={22}
+                                                color={"#BEE3F8"}
+                                            />
+                                        </StackItem>
                                     </HStack>
+                               
                                 </Skeleton>
                             </StackItem>
                         </Stack>
