@@ -97,7 +97,7 @@ model WorkSession {
   completedPercentage Float           @default(0)
   sessionHistory      SessionEntity[]
   task                Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  taskId              String          @unique
+  taskId              String        
 }
 
 
