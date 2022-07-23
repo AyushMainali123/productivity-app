@@ -14,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query"
 /**
  * * Update pomodoro length based on user changed value
  */
-const updatePomodoroFn = async ({ key, value }: { key: "pomodoroLength" | "shortBreakLength" | "longBreakLength", value: number }) => {
+const updatePomodoroFn = async ({ key, value }: { key: "pomodoroLength" | "shortBreakLength" | "longBreakLength" | "longBreakAfter", value: number }) => {
 
     const response = await axios.put(`/api/user/sessions/update`, {
         [key]: value
@@ -117,7 +117,14 @@ const Settings = () => {
                                     disabled={isMutatePomodoroLoading}
                                 >
                                     {
-                                        Array.from({ length: 59 }, (_, i) => i + 1).map(num => <option value={num} key={num}>{num} minutes</option>)
+                                        Array.from({ length: 59 }, (_, i) => i + 1).map(num => (
+                                            <option
+                                                value={num}
+                                                key={num}
+                                            >
+                                                {num} minutes
+                                            </option>
+                                        ))
                                     }
                                 </Select>
                             </Skeleton>
@@ -140,7 +147,42 @@ const Settings = () => {
                                     disabled={isMutatePomodoroLoading}
                                 >
                                     {
-                                        Array.from({ length: 59 }, (_, i) => i + 1).map(num => <option value={num} key={num}>{num} minutes</option>)
+                                        Array.from({ length: 59 }, (_, i) => i + 1).map(num => (
+                                            <option
+                                                value={num}
+                                                key={num}
+                                            >
+                                            {num} minutes
+                                        </option>))
+                                    }
+                                </Select>
+                            </Skeleton>
+                        </StackItem>
+                    </HStack>
+                </Box>
+
+                {/*Long Break Length Section */}
+                <Box my={7}>
+                    <HStack flexWrap={"wrap"} gap={1}>
+                        <StackItem as={"h5"} width={"150px"}>
+                            Long Break After
+                        </StackItem>
+                        <StackItem m={0}>
+                            <Skeleton isLoaded={!isCurrentUserLoading}>
+                                <Select
+                                    value={currentUser?.longBreakAfter}
+                                    onChange={(e) => mutateAsync({ key: "longBreakAfter", value: Number(e.target.value) })}
+                                    disabled={isMutatePomodoroLoading}
+                                >
+                                    {
+                                        Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
+                                            <option
+                                                value={num}
+                                                key={num}
+                                            >
+                                                {num} sessions
+                                            </option>
+                                        ))
                                     }
                                 </Select>
                             </Skeleton>
