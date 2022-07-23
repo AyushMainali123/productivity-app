@@ -3,9 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
 
-interface Data {
-
-}
+interface Data {}
 
 export default async function handler(
   req: NextApiRequest,
