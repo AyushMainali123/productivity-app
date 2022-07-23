@@ -3,9 +3,10 @@ import { Icon } from "@iconify/react";
 import axios from "axios";
 import { ChangeEvent, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
+import { getTotalCompletedPercentage } from "utils/getTotalCompletedPercentage";
 import PomodoroModal from "../PomodoroModal";
 import TaskDeletionAlert from "../TaskDeletionAlert";
-import { getTotalCompletedPercentage } from "./Task.utils";
+
 
 /* -------------------------------------------------------------------------- */
 /*                              Interface Starts                              */
