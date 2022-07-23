@@ -1,4 +1,3 @@
-import { UserDetails } from "@prisma/client";
 import Prisma from "lib/server/initPrisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
@@ -18,7 +17,6 @@ export default async function handler(
     }
     if (req.method === "POST") {
 
-        // Find user with the current email.
         const {
             taskId,
             sessionType,
@@ -55,20 +53,46 @@ export default async function handler(
             }
         })
 
-        if (sessionType === "WORK_SESSION") {
+
+        // Send the current session if session type is "SHORT_BREAK"
+        if (sessionType === "SHORT_BREAK") {
+            res.send({ ...newSession })
+            return;
+        }
+
+
+        // Update long break after to user default if the current sessiontype is "LONG_BREAK"
+        if (sessionType === "LONG_BREAK") {
+
             await Prisma.task.update({
                 where: {
                     id: taskId
                 },
                 data: {
                     longBreakAfter: {
-                       decrement: 1
-                   }
+                        set: currentUser.longBreakAfter
+                    }
                 }
             })
+            
+            res.send({ ...newSession })
+            return;
         }
-        
-        res.send({...newSession})
 
+        // Decrement current longBreakAfter by 1 if sessionType is "WORK_SESSION" 
+        await Prisma.task.update({
+            where: {
+                id: taskId
+            },
+            data: {
+                longBreakAfter: {
+                    decrement: 1
+                }
+            }
+        })
+
+        res.send({ ...newSession })
+        return;
+        
     }
 }

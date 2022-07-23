@@ -20,9 +20,9 @@ export default async function handler(
         
         const userId = token.user.id
 
-        const { pomodoroLength, shortBreakLength, longBreakLength } = req?.body;
+        const { pomodoroLength, shortBreakLength, longBreakLength, longBreakAfter } = req?.body;
 
-        if (!pomodoroLength && !shortBreakLength && !longBreakLength) {
+        if (!pomodoroLength && !shortBreakLength && !longBreakLength && !longBreakAfter) {
             res.status(400).send({message: "Invalid Input provided"})
         }
 
@@ -47,9 +47,20 @@ export default async function handler(
             data: {
                 pomodoroLength: pomodoroLength || currentUserDetails.pomodoroLength,
                 shortBreakLength: shortBreakLength || currentUserDetails.shortBreakLength,
-                longBreakLength: longBreakLength || currentUserDetails.longBreakLength
+                longBreakLength: longBreakLength || currentUserDetails.longBreakLength,
+                longBreakAfter: longBreakAfter || currentUserDetails.longBreakAfter
             }
         })
+
+
+        // If longBreakAfter is updated, update all task longBreakAfter key
+        if (longBreakAfter) {
+            await Prisma.task.updateMany({
+                data: {
+                    longBreakAfter
+                }
+            })
+        }
 
         
         res.send({...updatedUserDetails})
