@@ -1,5 +1,5 @@
 import { SessionEntity, Task, WorkSession } from "@prisma/client";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 interface CreateWorkSessionRequestProps {
     taskId: string,
@@ -21,6 +21,7 @@ interface StopSessionEntityProps {
 interface EndSessionRequestProps {
     sessionId: string;
     isSessionCompleted: boolean;
+    taskId?: string;
 }
 
 export const createWorkSessionMutationFn = async (params: CreateWorkSessionRequestProps)=> {
@@ -31,8 +32,8 @@ export const deleteWorkSessionMutationFn = async ({sessionId}:{sessionId: string
     return await axios.delete<WorkSession>(`/api/session/delete/${sessionId}`)
 }
 
-export const endWorkSessionMutationFn = async ({sessionId, isSessionCompleted}:EndSessionRequestProps) => {
-    return await axios.put<WorkSession>(`/api/session/end/${sessionId}`, {isSessionCompleted})
+export const endWorkSessionMutationFn = async ({sessionId, isSessionCompleted, taskId}:EndSessionRequestProps) => {
+    return await axios.put<WorkSession>(`/api/session/end/${sessionId}`, {isSessionCompleted, taskId})
 }
 
 export const createSessionEntityMutationFn = async (params: CreateSessionEntityProps)=> { 
@@ -43,6 +44,16 @@ export const stopSessionEntityMutationFn = async (params: StopSessionEntityProps
     return await axios.put<SessionEntity>('/api/session/entity/stop', params)
 }
 
-export const resetTaskLongBreak = async ({taskId}: { taskId: string }) => {
-    return await axios.put<Task>(`/api/task/update/break/reset/${taskId}`)
+
+export const getNextSession = (currentSession: SessionType, nextLongBreak: number): SessionType => {
+
+    if (nextLongBreak === 0 && currentSession === "WORK_SESSION") {
+        return "LONG_BREAK"
+    }
+
+    if (currentSession === "WORK_SESSION") {
+        return "SHORT_BREAK"
+    }
+    
+    return "WORK_SESSION"
 }
