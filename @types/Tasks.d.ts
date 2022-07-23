@@ -8,7 +8,7 @@ interface TaskListSingleTask {
     taskName: string
     userId: string
     taskStatus: TaskStatus
-    breakAfter: number
+    longBreakAfter: number
     workSession: WorkSessionApiResponse[]
 }
 
