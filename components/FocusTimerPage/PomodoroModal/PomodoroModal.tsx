@@ -1,13 +1,13 @@
-import { Box, Button, Center, chakra, Fade, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VisuallyHidden, VStack } from "@chakra-ui/react";
+import { Badge, Box, Button, Center, HStack, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackItem, Tooltip, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
-import { SessionEntity, Task, WorkSession } from "@prisma/client";
+import { SessionEntity, WorkSession } from "@prisma/client";
 import { format } from 'date-fns';
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { getTotalCompletedPercentage } from "utils/getTotalCompletedPercentage";
 import PomodoroCloseAlertDialog from "../PomodoroCloseAlertDialog";
-import { createSessionEntityMutationFn, createWorkSessionMutationFn, endWorkSessionMutationFn, resetTaskLongBreak, stopSessionEntityMutationFn } from "./PomodoroModal.utils";
+import { createSessionEntityMutationFn, createWorkSessionMutationFn, endWorkSessionMutationFn, getNextSession, stopSessionEntityMutationFn } from "./PomodoroModal.utils";
 import usePomodoro from "./usePomodoro";
-import { getTotalCompletedPercentage } from "../Task/Task.utils";
 /* -------------------------------------------------------------------------- */
 /*                              Interface Starts                              */
 /* -------------------------------------------------------------------------- */
@@ -40,6 +40,15 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
         variant: "solid"
     })
 
+    // This reference tracks if the pomodoro is rendered first time
+    const isRenderedFirstTime = useRef(true);
+
+    // This reference tracks ongoing pomodoro session
+    const onGoingSession = useRef<WorkSession | null>(null);
+
+    // This reference tracks current session entity
+    const currentSessionEntity = useRef<SessionEntity | null>(null);
+
     const {
         isOpen: isPomodoroStopDialogOpen,
         onClose: onPomodoroStopDialogClose,
@@ -50,13 +59,27 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
         data: userDetailsData,
         isLoading: isUserDetailsDataLoading,
         isError: isUserDetailsDataError
-    } = useQuery<UserDetailsApiResponse>(["/api/user"])
-
-    const { minuteCount, secondCount, setSessionPlaying } = usePomodoro({
-        breakTime: userDetailsData?.shortBreakLength || 5,
-        sessionTime: userDetailsData?.pomodoroLength || 25,
-        currentSession: "session"
+    } = useQuery<UserDetailsApiResponse>(["/api/user"], {
+        onSuccess: (data) => {
+            console.log({ data })
+        },
+        onSettled: () => {
+            console.log("SETTLED")
+        }
     })
+
+    const {
+        minuteCount,
+        secondCount,
+        setSessionPlaying,
+        isCurrentSessionCompleted,
+        setCurrentPomodoroSession,
+        setCurrentSessionCompleted,
+        setShortBreakTime,
+        setLongBreakTime,
+        setSessionTime,
+        currentPomodoroSession
+    } = usePomodoro()
 
     const {
         data: taskDetailsData,
@@ -85,7 +108,8 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
 
 
     const {
-        mutateAsync: createSessionEntityMutateAsync
+        mutateAsync: createSessionEntityMutateAsync,
+        isLoading: isCreatingSessionEntity
     } = useMutation(createSessionEntityMutationFn, {
         // After the mutation is completed, this function is executed at the top priority.
         onSuccess: (data) => {
@@ -96,7 +120,8 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
 
 
     const {
-        mutateAsync: stopSessionEntityMutateAsync
+        mutateAsync: stopSessionEntityMutateAsync,
+        isLoading: isStoppingSessionEntity
     } = useMutation(stopSessionEntityMutationFn, {
         onSuccess: (data) => {
             currentSessionEntity.current = data.data;
@@ -114,22 +139,89 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
     })
 
 
-    const { mutateAsync: resetTaskLongBreakMutateAsync, isLoading: isResettingLongBreak } = useMutation(resetTaskLongBreak, {
-        onSuccess: (data) => {
-            queryClient.setQueryData<Task>([`/api/task/update/break/reset/${taskId}`], () => ({
-                ...data.data
-            }))
+    useEffect(() => {
+        if (!userDetailsData) return;
+        setSessionTime(userDetailsData?.pomodoroLength)
+        setLongBreakTime(userDetailsData.longBreakLength)
+        setShortBreakTime(userDetailsData.shortBreakLength)
+    }, [userDetailsData, setLongBreakTime, setShortBreakTime, setSessionTime])
+
+
+    // Call this effect as soon as the session is changed
+    useEffect(() => {
+
+        // Function to call after isCurrentSessionCompleted updates.
+        const handleSessionCompleted = async () => {
+
+
+            // If the current session is not present or session is not completed. terminate the effect here
+            if (!onGoingSession.current || !isCurrentSessionCompleted) return;
+
+
+            if (isCurrentSessionCompleted) {
+
+                // Perform operations and call endpoints in this section
+
+                // Set the current session to not completed
+                setCurrentSessionCompleted(false)
+
+
+                // This is the time, new session is started
+                const timeStart = new Date()
+
+                // Setting usePomodoro hook sessiontype
+                const currentSession = onGoingSession.current.sessionType
+                const nextLongBreak = taskDetailsData?.longBreakAfter as number
+
+                const nextSession = getNextSession(currentSession, nextLongBreak)
+
+                setCurrentPomodoroSession(nextSession)
+
+
+                // Stop the entity here
+                await stopSessionEntityMutateAsync({
+                    entityId: currentSessionEntity.current?.id || "",
+                    sessionId: onGoingSession.current?.id || "",
+                    timeEnd: timeStart  // Stop the timer when the session is ended by default
+                })
+
+                // End the current session here
+                await endWorkSessionMutateAsync({
+                    isSessionCompleted: true,
+                    sessionId: onGoingSession.current?.id || ""
+                })
+
+
+                // Start the new session here
+                await createWorkSessionMutateAsync({
+                    sessionType: nextSession,
+                    isSessionStarted: true,
+                    taskId
+                })
+
+                // Start the new session entity here
+                await createSessionEntityMutateAsync({
+                    sessionId: onGoingSession.current.id,
+                    timeStart
+                })
+
+            }
         }
-    })
 
-    // This reference tracks if the pomodoro is rendered first time
-    const isRenderedFirstTime = useRef(true);
+        handleSessionCompleted();
 
-    // This reference tracks ongoing pomodoro session
-    const onGoingSession = useRef<WorkSession | null>(null);
 
-    // This reference tracks current session entity
-    const currentSessionEntity = useRef<SessionEntity | null>(null);
+    }, [
+        isCurrentSessionCompleted,
+        setCurrentSessionCompleted,
+        endWorkSessionMutateAsync,
+        setCurrentPomodoroSession,
+        taskDetailsData?.longBreakAfter,
+        createSessionEntityMutateAsync,
+        createWorkSessionMutateAsync,
+        stopSessionEntityMutateAsync,
+        taskId
+    ])
 
 
     /**
@@ -138,20 +230,25 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
      */
     const handleAlertDialogClose = async () => {
 
-        onClose();
-        onPomodoroStopDialogClose();
+
 
         // If the session is not started end the pomodoro
-        if (!onGoingSession.current) return;
+        if (!onGoingSession.current) {
+            onClose();
+            onPomodoroStopDialogClose();
+            return;
+        }
 
         await endWorkSessionMutateAsync({
             isSessionCompleted: false,
-            sessionId: onGoingSession.current?.id || ""
-        })
-
-        await resetTaskLongBreakMutateAsync({
+            sessionId: onGoingSession.current?.id || "",
             taskId
         })
+
+
+        // Close the alert dialog after api calls
+        onClose();
+        onPomodoroStopDialogClose();
     }
 
     /**
@@ -235,7 +332,7 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                 isOpen={isPomodoroStopDialogOpen}
                 onClose={handleAlertDialogClose}
                 onCancel={onPomodoroStopDialogClose}
-                isClosing={isEndingWorkSession || isResettingLongBreak}
+                isClosing={isEndingWorkSession}
             />
             <Modal
                 isOpen={isOpen}
@@ -264,12 +361,15 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                                             />
                                         </StackItem>
                                     </HStack>
-                               
+
                                 </Skeleton>
                             </StackItem>
                         </Stack>
                     </ModalHeader>
                     <ModalBody>
+                        <Badge colorScheme={"black"} variant='subtle'>
+                            {currentPomodoroSession.replace("_", " ")}
+                        </Badge>
                         <Center
                             minH={{ base: "350", md: "400px" }}
                             margin={"auto"}
@@ -325,7 +425,7 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                             {
                                 !!isPomodoroStarted && (
                                     <Tooltip label={"Pause pomodoro"} hasArrow placement="top">
-                                        <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStop} disabled={isUserDetailsDataLoading}>
+                                        <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStop} disabled={isUserDetailsDataLoading || isCreatingWorkSession || isCreatingSessionEntity}>
                                             <Icon icon={"carbon:pause-future"} width={"40px"} />
                                         </Button>
                                     </Tooltip>
@@ -336,12 +436,12 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                                 !isPomodoroStarted && (
                                     <>
                                         <Tooltip label={"Play Pomodoro"} hasArrow placement={"top"}>
-                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStart} disabled={isUserDetailsDataLoading || isCreatingWorkSession}>
+                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={handlePomodoroStart} disabled={isUserDetailsDataLoading || isStoppingSessionEntity}>
                                                 <Icon icon={"bi:play-circle"} fontSize={"40px"} />
                                             </Button>
                                         </Tooltip>
                                         <Tooltip label={"End pomodoro"} hasArrow placement={"top"}>
-                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={onPomodoroStopDialogOpen} disabled={isUserDetailsDataLoading || isCreatingWorkSession}>
+                                            <Button variant={"ghost"} py={3} px={3} size={"lg"} onClick={onPomodoroStopDialogOpen} disabled={isUserDetailsDataLoading || isStoppingSessionEntity}>
                                                 <Icon icon={"carbon:stop-outline"} fontSize={"47px"} />
                                             </Button>
                                         </Tooltip>
