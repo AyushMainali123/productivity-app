@@ -18,7 +18,7 @@ const dummyTaskListData = {
     taskName: "test",
     userId: "test",
     taskStatus: "ONGOING" as "ONGOING",
-    breakAfter: 99,
+    longBreakAfter: 25,
     isDummy: true,
     workSession: [] as WorkSessionApiResponse[]
 }
