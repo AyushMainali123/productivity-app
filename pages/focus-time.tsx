@@ -9,7 +9,6 @@ const FocusTime = () => {
             <Box as={"section"}
                 maxW={"8xl"}
                 m={"auto"}
-                // px={{ base: 0, md: "30px", '2xl': "0px" }}
                 px={"10px"}
             >
                 <TaskInput />
