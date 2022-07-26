@@ -69,7 +69,11 @@ const Settings = () => {
 
     return (
         <AuthLayout>
-            <Box as={"section"} maxW={"8xl"} m={"auto"} px={{ base: 0, md: "30px", '2xl': "0px" }}>
+            <Box as={"section"}
+                maxW={"8xl"}
+                m={"auto"}
+                px={"10px"}
+            >
                 <Box as={"h2"} fontSize={"2xl"} mt={10} mb={7}>Settings</Box>
                 <HStack bg={"black.primary"} px={5} py={3} fontWeight={"medium"} fontSize={"large"} borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"}>
                     <StackItem>
