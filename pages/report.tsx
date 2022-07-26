@@ -6,8 +6,10 @@ import {
 import AuthLayout from "components/Layouts/AuthLayout";
 import ReportCard from "components/ReportsPage/ReportCard";
 import WeeklyBar from "components/ReportsPage/WeeklyBar";
+import { useMemo } from "react";
 import LoadingOverlay from 'react-loading-overlay-ts';
 import { useQuery } from "react-query";
+import { calculateTotalTimeFromMinutes } from "utils/calculateTotalTime";
 
 ChartJS.register(
     CategoryScale,
@@ -39,6 +41,10 @@ const Reports = () => {
         duration: 3000
     })
 
+    const totalFormattedWorkSessions = useMemo(() => calculateTotalTimeFromMinutes(weeklyData?.totalWorkSessionsInMinutes || 0), [weeklyData])
+    const totalFormattedShortBreakSessions = useMemo(() => calculateTotalTimeFromMinutes(weeklyData?.totalShortBreakSessionsInMinutes || 0), [weeklyData])
+    const totalFormattedLongBreakSessions = useMemo(() => calculateTotalTimeFromMinutes(weeklyData?.totalLongBreakSessionsInMinutes || 0), [weeklyData])
+
     if (isWeeklyDataError) {
         toast({
             title: "Error loading weekly data.",
@@ -69,7 +75,7 @@ const Reports = () => {
                         </HStack>
                     </TabList>
                     <Box bg={"black.primary"} px={5} py={3} fontWeight={"medium"} fontSize={"large"} borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"}>
-                        Total time: {weeklyData?.totalWorkSessionsInMinutes}
+                        Total time: {totalFormattedWorkSessions.hours} hr {totalFormattedWorkSessions.minutes} mins
                     </Box>
                     <TabPanels>
                         <TabPanel px={0} py={0}>
@@ -106,7 +112,7 @@ const Reports = () => {
                         </HStack>
                     </TabList>
                     <Box bg={"black.primary"} px={5} py={3} fontWeight={"medium"} fontSize={"large"} borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"}>
-                        Total time: {weeklyData?.totalShortBreakSessionsInMinutes}
+                        Total time: {totalFormattedShortBreakSessions.hours} hr {totalFormattedShortBreakSessions.minutes} mins
                     </Box>
                     <TabPanels>
                         <TabPanel px={0} py={0}>
@@ -142,7 +148,7 @@ const Reports = () => {
                         </HStack>
                     </TabList>
                     <Box bg={"black.primary"} px={5} py={3} fontWeight={"medium"} fontSize={"large"} borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"}>
-                        Total time: {weeklyData?.totalLongBreakSessionsInMinutes}
+                        Total time: {totalFormattedLongBreakSessions.hours} hr {totalFormattedLongBreakSessions.minutes} mins
                     </Box>
                     <TabPanels>
                         <TabPanel px={0} py={0}>
@@ -157,7 +163,7 @@ const Reports = () => {
                     </TabPanels>
                 </Tabs>
             </ReportCard>
-           
+
         </AuthLayout>
     )
 }
