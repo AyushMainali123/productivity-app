@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, Skeleton, StackItem, useDisclosure, useToast } from "@chakra-ui/react";
+import { Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, Skeleton, StackItem, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { ChangeEvent, useState } from "react";
@@ -142,10 +142,10 @@ const Task = ({ taskName, taskStatus, id, isDummy, workSession }: TaskProps) => 
                                 </Button>
                             </Skeleton>
                         </StackItem>
-                        <StackItem whiteSpace={"nowrap"} overflow={"hidden"} textOverflow={"ellipsis"} maxW={"50vw"}>
+                        <StackItem  maxW={{base: "25vw", md: "45vw", lg: "50vw"}}>
 
                             <Skeleton isLoaded={!isDummy}>
-                                <Box textDecoration={isCheckboxChecked ? "line-through" : "initial"} fontSize={{ base: "xs", md: "md" }}>{taskName}</Box>
+                                <Text noOfLines={1} >{taskName}</Text>
                             </Skeleton>
                         </StackItem>
                     </HStack>
@@ -154,15 +154,8 @@ const Task = ({ taskName, taskStatus, id, isDummy, workSession }: TaskProps) => 
                 <StackItem>
                     <HStack gap={1}>
                         <StackItem>
-                            {/* Type One of showing data*/}
-                            {/* This is commented for now and typew two is shown */}
-                            {/* {
-                                            workSession.map((session, index) => (
-                                                <Icon icon={"icon-park-outline:timer"} width={22} height={22} opacity={session.isSessionCompleted ? 1 : 0.4} color={"#fff"} key={index} />
-                                            ))
-                                        } */}
 
-                            {/* Type Two of showing data */}
+                            {/* Showing data */}
                             <HStack alignItems={"center"} mt={1}>
                                 <StackItem>
                                     <Skeleton isLoaded={!isDummy}>
