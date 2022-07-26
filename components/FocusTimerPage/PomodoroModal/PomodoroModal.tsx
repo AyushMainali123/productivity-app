@@ -63,9 +63,7 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
         onSuccess: (data) => {
             console.log({ data })
         },
-        onSettled: () => {
-            console.log("SETTLED")
-        }
+        onSettled: () => {}
     })
 
     const {
@@ -371,7 +369,7 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                             {currentPomodoroSession.replace("_", " ")}
                         </Badge>
                         <Center
-                            minH={{ base: "350", md: "400px" }}
+                            minH={{ base: "250px", md: "400px" }}
                             margin={"auto"}
                             tabIndex={-1}
                             bgImage={{ base: "none", md: "url('/images/loginsignup/clock.png')" }}
