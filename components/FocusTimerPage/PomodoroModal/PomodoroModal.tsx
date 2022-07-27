@@ -2,7 +2,7 @@ import { Badge, Box, Button, Center, HStack, Modal, ModalBody, ModalContent, Mod
 import { Icon } from "@iconify/react";
 import { SessionEntity, WorkSession } from "@prisma/client";
 import { format } from 'date-fns';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getTotalCompletedPercentage } from "utils/getTotalCompletedPercentage";
 import PomodoroCloseAlertDialog from "../PomodoroCloseAlertDialog";
@@ -33,8 +33,13 @@ const INITIAL_STATE = {
 
 const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) => {
 
+    // Track if the pomodoro is started
     const [isPomodoroStarted, setPomodoroStarted] = useState(() => INITIAL_STATE.isPomodoroStarted)
 
+    // Initialising audio and saving it on cache
+    const audio = useMemo(() => new Audio("/music/pomodoro-alarm.wav"), [])
+
+    // Hook to initialise toast.
     const toast = useToast({
         position: "top-right",
         variant: "solid"
@@ -49,23 +54,26 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
     // This reference tracks current session entity
     const currentSessionEntity = useRef<SessionEntity | null>(null);
 
+    // hook to get current query client instance
+    const queryClient = useQueryClient();
+
+    // Hook to handle pomodoro stop dialog
     const {
         isOpen: isPomodoroStopDialogOpen,
         onClose: onPomodoroStopDialogClose,
         onOpen: onPomodoroStopDialogOpen
     } = useDisclosure()
 
+
+    // Hook to get user data
     const {
         data: userDetailsData,
         isLoading: isUserDetailsDataLoading,
         isError: isUserDetailsDataError
-    } = useQuery<UserDetailsApiResponse>(["/api/user"], {
-        onSuccess: (data) => {
-            console.log({ data })
-        },
-        onSettled: () => {}
-    })
+    } = useQuery<UserDetailsApiResponse>(["/api/user"])
 
+
+    // hook to handle pomodoro
     const {
         minuteCount,
         secondCount,
@@ -85,7 +93,7 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
         isError: isTaskDetailsError
     } = useQuery<TaskListSingleTask>([`/api/task/${taskId}`])
 
-    const queryClient = useQueryClient();
+
 
     const {
         mutateAsync: createWorkSessionMutateAsync,
@@ -133,10 +141,17 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
             onGoingSession.current = data.data;
             queryClient.invalidateQueries([`/api/task/${taskId}`])
             queryClient.invalidateQueries([`/api/task`]);
+        },
+        onError: (error: {message: string}) => {
+            toast({
+                title: error.message || "Couldnot end session. Unfortunately this session cannot be saved",
+                status: "error"
+            })
         }
     })
 
 
+    // After retriving userDetailsData, update sessionTime, longBreak, shortBreak
     useEffect(() => {
         if (!userDetailsData) return;
         setSessionTime(userDetailsData?.pomodoroLength)
@@ -162,6 +177,9 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
 
                 // Set the current session to not completed
                 setCurrentSessionCompleted(false)
+                
+                // Play the audio to let user know current session is completed
+                audio.play()
 
 
                 // This is the time, new session is started
@@ -218,7 +236,8 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
         createSessionEntityMutateAsync,
         createWorkSessionMutateAsync,
         stopSessionEntityMutateAsync,
-        taskId
+        taskId,
+        audio
     ])
 
 
@@ -326,12 +345,15 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
 
     return (
         <>
+            {/* Pomodoro force close alert dialog */}
             <PomodoroCloseAlertDialog
                 isOpen={isPomodoroStopDialogOpen}
                 onClose={handleAlertDialogClose}
                 onCancel={onPomodoroStopDialogClose}
                 isClosing={isEndingWorkSession}
             />
+
+            {/* Main Pomodoro modal starts */}
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
@@ -339,6 +361,8 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
             >
                 <ModalOverlay backdropFilter='blur(10px)' />
                 <ModalContent bgColor={"baseBackground"}>
+
+                    {/* Pomodoro top header */}
                     <ModalHeader bg={"black.primary"}>
                         <Stack direction={{ base: "column", md: "row" }} justifyContent={"space-between"} gap={1}>
                             <StackItem fontWeight={"normal"} flex={1} >
@@ -364,6 +388,8 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                             </StackItem>
                         </Stack>
                     </ModalHeader>
+
+                    {/* Main Pomodoro bosy */}
                     <ModalBody>
                         <Badge colorScheme={"black"} variant='subtle'>
                             {currentPomodoroSession.replace("_", " ")}
@@ -418,6 +444,8 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                             </VStack>
                         </Center>
                     </ModalBody>
+
+                    {/* Pomodoro footer */}
                     <ModalFooter alignSelf={"center"} mb={4}>
                         <Center gap={1}>
                             {

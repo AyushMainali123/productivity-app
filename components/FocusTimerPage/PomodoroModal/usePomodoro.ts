@@ -44,8 +44,6 @@ const usePomodoro = () => {
         if (minuteCount === 0 && secondCount === 0) {
             setSecondCount(0)
             setCurrentSessionCompleted(true);
-            const audio = new Audio("/music/pomodoro-alarm.wav")
-            audio.play();
             return;
         }
 
