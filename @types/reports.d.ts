@@ -1,18 +1,20 @@
-interface WeeklySessionReports {
-        "0": number
-        "1": number
-        "2": number
-        "3": number
-        "4": number
-        "5": number
-        "6": number
+interface TaskDetails {
+    id: string
+    taskName: string
 }
 
-interface WeeklyReportsApiResponse {
-    totalWorkSessionsInMinutes: number,
-    totalShortBreakSessionsInMinutes: number,
-    totalLongBreakSessionsInMinutes: number,
-    workSessionsReports: WeeklySessionReports;
-    shortBreakSessionsReports: WeeklySessionReports;
-    longBreakSessionsReports: WeeklySessionReports;
+interface WeeklyReportsSingleEntityApiResponse {
+    id: string;
+    completedPercentage: number
+    sessionLength: number
+    sessionType: SessionType
+    createdAt: Date
+    updatedAt: Date
+    task: TaskDetails
+}
+
+interface WeeklyDataApiResponse {
+    thisWeeksStackedWorkSessionsData: SingleApiResponse[][]
+    thisWeeksStackedShortBreakSessionsData: SingleApiResponse[][]
+    thisWeeksStackedLongBreakSessionsData: SingleApiResponse[][]
 }
