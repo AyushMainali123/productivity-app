@@ -1,7 +1,7 @@
 import { Box } from "@chakra-ui/react";
-import axios from "axios";
 import Footer from "components/ui/Footer";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { useEffect } from "react";
 import { useQueryClient } from "react-query";
 import Navbar from "../../ui/Navbar";
@@ -12,12 +12,13 @@ import Navbar from "../../ui/Navbar";
 
 interface AuthLayoutProps {
     children: React.ReactNode
+    pageTitle: string;
 }
 
 /* --------------------------- Interface Ends Here -------------------------- */
 
 
-const AuthLayout = ({ children }: AuthLayoutProps) => {
+const AuthLayout = ({ children, pageTitle }: AuthLayoutProps) => {
 
     const session = useSession();
 
@@ -30,6 +31,9 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
 
     return (
         <>
+            <Head>
+                <title>{pageTitle}</title>
+            </Head>
             {
                 session.status === "authenticated" && <Navbar isAuthenticated={true} name={session.data.user?.name || ""} />
             }

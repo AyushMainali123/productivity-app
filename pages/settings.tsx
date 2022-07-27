@@ -68,7 +68,7 @@ const Settings = () => {
     }
 
     return (
-        <AuthLayout>
+        <AuthLayout pageTitle={"Settings | Focus Timer"}>
             <Box as={"section"}
                 maxW={"8xl"}
                 m={"auto"}

@@ -5,12 +5,12 @@ import {
 } from 'chart.js';
 import AuthLayout from "components/Layouts/AuthLayout";
 import ReportCard from "components/ReportsPage/ReportCard";
-import { getTotalMinutesFromStackedApiResponse } from "utils/getTotalMinutesFromStackedApiResponse";
 import WeeklyBarStacked from "components/ReportsPage/WeeklyBarStacked";
 import { useMemo } from "react";
 import LoadingOverlay from 'react-loading-overlay-ts';
 import { useQuery } from "react-query";
 import { calculateTotalTimeFromMinutes } from "utils/calculateTotalTime";
+import { getTotalMinutesFromStackedApiResponse } from "utils/getTotalMinutesFromStackedApiResponse";
 
 ChartJS.register(
     CategoryScale,
@@ -25,7 +25,7 @@ ChartJS.register(
 
 const Reports = () => {
 
-    const { data: weeklyStackedData, isLoading: isWeeklyStackedDataLoading, isError: isWeeklyStackedDataError } = useQuery<WeeklyDataApiResponse>(["/api/reports/weekly"], {staleTime: 0})
+    const { data: weeklyStackedData, isLoading: isWeeklyStackedDataLoading, isError: isWeeklyStackedDataError } = useQuery<WeeklyDataApiResponse>(["/api/reports/weekly"], { staleTime: 0 })
     const toast = useToast({
         position: "top",
         isClosable: true,
@@ -33,7 +33,7 @@ const Reports = () => {
     })
 
     const totalFormattedWorkSessions = useMemo(() => {
-        if (!weeklyStackedData) return {hours: 0, minutes: 0, seconds: 0};
+        if (!weeklyStackedData) return { hours: 0, minutes: 0, seconds: 0 };
 
         const totalTimeInMinutes = getTotalMinutesFromStackedApiResponse(weeklyStackedData?.thisWeeksStackedWorkSessionsData)
         return calculateTotalTimeFromMinutes(totalTimeInMinutes)
@@ -64,7 +64,7 @@ const Reports = () => {
     }
 
     return (
-        <AuthLayout>
+        <AuthLayout pageTitle={"Reports | Focus Timer"}>
             <Box
                 maxW={"8xl"}
                 m={"auto"}

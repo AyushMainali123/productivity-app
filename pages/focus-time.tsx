@@ -5,7 +5,7 @@ import AuthLayout from "components/Layouts/AuthLayout"
 
 const FocusTime = () => {
     return (
-        <AuthLayout>
+        <AuthLayout pageTitle={"Tasks | Focus Timer"}>
             <Box as={"section"}
                 maxW={"8xl"}
                 m={"auto"}
