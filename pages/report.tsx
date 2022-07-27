@@ -25,7 +25,7 @@ ChartJS.register(
 
 const Reports = () => {
 
-    const { data: weeklyStackedData, isLoading: isWeeklyStackedDataLoading, isError: isWeeklyStackedDataError } = useQuery<WeeklyDataApiResponse>(["/api/reports/weekly"])
+    const { data: weeklyStackedData, isLoading: isWeeklyStackedDataLoading, isError: isWeeklyStackedDataError } = useQuery<WeeklyDataApiResponse>(["/api/reports/weekly"], {staleTime: 0})
     const toast = useToast({
         position: "top",
         isClosable: true,
