@@ -24,6 +24,9 @@ export default async function handler(
                 taskStatus: "COMPLETED",
                 userId: token.user.id
             },
+            orderBy: {
+                createdAt: "desc"
+            },
             include: {
                 workSession: true
             }
@@ -33,6 +36,9 @@ export default async function handler(
             where: {
                 taskStatus: "ONGOING",
                 userId: token.user.id
+            },
+             orderBy: {
+                createdAt: "desc"
             },
             include: {
                 workSession: true
