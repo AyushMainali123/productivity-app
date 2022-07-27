@@ -1,4 +1,4 @@
-import { Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, Skeleton, StackItem, Text, useDisclosure, useToast } from "@chakra-ui/react";
+import { Box, Button, Checkbox, HStack, Menu, MenuButton, MenuItem, MenuList, Skeleton, StackItem, Text, Tooltip, useDisclosure, useToast } from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
 import { ChangeEvent, useState } from "react";
@@ -142,7 +142,7 @@ const Task = ({ taskName, taskStatus, id, isDummy, workSession }: TaskProps) => 
                                 </Button>
                             </Skeleton>
                         </StackItem>
-                        <StackItem  maxW={{base: "25vw", md: "45vw", lg: "50vw"}}>
+                        <StackItem maxW={{ base: "25vw", md: "45vw", lg: "50vw" }}>
 
                             <Skeleton isLoaded={!isDummy}>
                                 <Text noOfLines={1} >{taskName}</Text>
@@ -159,7 +159,11 @@ const Task = ({ taskName, taskStatus, id, isDummy, workSession }: TaskProps) => 
                             <HStack alignItems={"center"} mt={1}>
                                 <StackItem>
                                     <Skeleton isLoaded={!isDummy}>
-                                        {getTotalCompletedPercentage(workSession)}
+                                        <Tooltip label="Total pomodoro you completed" aria-label="tooltip" hasArrow>
+                                            <Box as={"span"}>
+                                                {getTotalCompletedPercentage(workSession)}
+                                            </Box>
+                                        </Tooltip>
                                     </Skeleton>
                                 </StackItem>
                                 <StackItem mb={"1px"}>
