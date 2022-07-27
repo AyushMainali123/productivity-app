@@ -5,7 +5,8 @@ import {
 } from 'chart.js';
 import AuthLayout from "components/Layouts/AuthLayout";
 import ReportCard from "components/ReportsPage/ReportCard";
-import WeeklyBar from "components/ReportsPage/WeeklyBar";
+import { getTotalMinutesFromStackedApiResponse } from "utils/getTotalMinutesFromStackedApiResponse";
+import WeeklyBarStacked from "components/ReportsPage/WeeklyBarStacked";
 import { useMemo } from "react";
 import LoadingOverlay from 'react-loading-overlay-ts';
 import { useQuery } from "react-query";
@@ -21,31 +22,41 @@ ChartJS.register(
 );
 
 
-const initialWeeklyData = {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "5": 0,
-    "6": 0
-}
-
 
 const Reports = () => {
 
-    const { data: weeklyData, isLoading: isWeeklyDataLoading, isError: isWeeklyDataError } = useQuery<WeeklyReportsApiResponse>(["/api/reports/weekly"])
+    const { data: weeklyStackedData, isLoading: isWeeklyStackedDataLoading, isError: isWeeklyStackedDataError } = useQuery<WeeklyDataApiResponse>(["/api/reports/weekly"])
     const toast = useToast({
         position: "top",
         isClosable: true,
         duration: 3000
     })
 
-    const totalFormattedWorkSessions = useMemo(() => calculateTotalTimeFromMinutes(weeklyData?.totalWorkSessionsInMinutes || 0), [weeklyData])
-    const totalFormattedShortBreakSessions = useMemo(() => calculateTotalTimeFromMinutes(weeklyData?.totalShortBreakSessionsInMinutes || 0), [weeklyData])
-    const totalFormattedLongBreakSessions = useMemo(() => calculateTotalTimeFromMinutes(weeklyData?.totalLongBreakSessionsInMinutes || 0), [weeklyData])
+    const totalFormattedWorkSessions = useMemo(() => {
+        if (!weeklyStackedData) return {hours: 0, minutes: 0, seconds: 0};
 
-    if (isWeeklyDataError) {
+        const totalTimeInMinutes = getTotalMinutesFromStackedApiResponse(weeklyStackedData?.thisWeeksStackedWorkSessionsData)
+        return calculateTotalTimeFromMinutes(totalTimeInMinutes)
+    }, [weeklyStackedData])
+
+
+    const totalFormattedShortBreakSessions = useMemo(() => {
+        if (!weeklyStackedData) return { hours: 0, minutes: 0, seconds: 0 };
+
+        const totalTimeInMinutes = getTotalMinutesFromStackedApiResponse(weeklyStackedData?.thisWeeksStackedShortBreakSessionsData)
+        return calculateTotalTimeFromMinutes(totalTimeInMinutes)
+    }, [weeklyStackedData])
+
+
+    const totalFormattedLongBreakSessions = useMemo(() => {
+        if (!weeklyStackedData) return { hours: 0, minutes: 0, seconds: 0 };
+
+        const totalTimeInMinutes = getTotalMinutesFromStackedApiResponse(weeklyStackedData?.thisWeeksStackedLongBreakSessionsData)
+        return calculateTotalTimeFromMinutes(totalTimeInMinutes)
+    }, [weeklyStackedData])
+
+
+    if (isWeeklyStackedDataError) {
         toast({
             title: "Error loading weekly data.",
             status: "error"
@@ -79,15 +90,13 @@ const Reports = () => {
                             </HStack>
                         </TabList>
                         <Box bg={"black.primary"} px={5} py={3} fontWeight={"medium"} fontSize={"large"} borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"}>
-                            Total time: {totalFormattedWorkSessions.hours} hr {totalFormattedWorkSessions.minutes} mins
+                            Total time: {totalFormattedWorkSessions.hours} hr {totalFormattedWorkSessions.minutes} min {totalFormattedWorkSessions.seconds} sec
                         </Box>
                         <TabPanels>
                             <TabPanel px={0} py={0}>
-                                <LoadingOverlay active={isWeeklyDataLoading}>
+                                <LoadingOverlay active={isWeeklyStackedDataLoading}>
                                     <Box borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"} py={4} px={10}>
-                                        <WeeklyBar
-                                            data={weeklyData ? weeklyData.workSessionsReports : initialWeeklyData as WeeklySessionReports}
-                                        />
+                                        <WeeklyBarStacked data={weeklyStackedData?.thisWeeksStackedWorkSessionsData} />
                                     </Box>
                                 </LoadingOverlay>
                             </TabPanel>
@@ -116,15 +125,13 @@ const Reports = () => {
                             </HStack>
                         </TabList>
                         <Box bg={"black.primary"} px={5} py={3} fontWeight={"medium"} fontSize={"large"} borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"}>
-                            Total time: {totalFormattedShortBreakSessions.hours} hr {totalFormattedShortBreakSessions.minutes} mins
+                            Total time: {totalFormattedShortBreakSessions.hours} hr {totalFormattedShortBreakSessions.minutes} min {totalFormattedShortBreakSessions.seconds} sec
                         </Box>
                         <TabPanels>
                             <TabPanel px={0} py={0}>
-                                <LoadingOverlay active={isWeeklyDataLoading}>
+                                <LoadingOverlay active={isWeeklyStackedDataLoading}>
                                     <Box borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"} py={4} px={10}>
-                                        <WeeklyBar
-                                            data={weeklyData ? weeklyData.shortBreakSessionsReports : initialWeeklyData as WeeklySessionReports}
-                                        />
+                                        <WeeklyBarStacked data={weeklyStackedData?.thisWeeksStackedShortBreakSessionsData} />
                                     </Box>
                                 </LoadingOverlay>
                             </TabPanel>
@@ -152,15 +159,13 @@ const Reports = () => {
                             </HStack>
                         </TabList>
                         <Box bg={"black.primary"} px={5} py={3} fontWeight={"medium"} fontSize={"large"} borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"}>
-                            Total time: {totalFormattedLongBreakSessions.hours} hr {totalFormattedLongBreakSessions.minutes} mins
+                            Total time: {totalFormattedLongBreakSessions.hours} hr {totalFormattedLongBreakSessions.minutes} min {totalFormattedLongBreakSessions.seconds} sec
                         </Box>
                         <TabPanels>
                             <TabPanel px={0} py={0}>
-                                <LoadingOverlay active={isWeeklyDataLoading}>
+                                <LoadingOverlay active={isWeeklyStackedDataLoading}>
                                     <Box borderWidth={"1px"} borderColor={"black"} borderStyle={"solid"} py={4} px={10}>
-                                        <WeeklyBar
-                                            data={weeklyData ? weeklyData.longBreakSessionsReports : initialWeeklyData as WeeklySessionReports}
-                                        />
+                                        <WeeklyBarStacked data={weeklyStackedData?.thisWeeksStackedLongBreakSessionsData} />
                                     </Box>
                                 </LoadingOverlay>
                             </TabPanel>
@@ -168,6 +173,7 @@ const Reports = () => {
                     </Tabs>
                 </ReportCard>
             </Box>
+
 
         </AuthLayout>
     )
