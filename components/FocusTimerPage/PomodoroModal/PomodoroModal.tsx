@@ -351,6 +351,7 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                 onClose={handleAlertDialogClose}
                 onCancel={onPomodoroStopDialogClose}
                 isClosing={isEndingWorkSession}
+      
             />
 
             {/* Main Pomodoro modal starts */}
@@ -358,6 +359,7 @@ const PomodoroModal = ({ isOpen, onClose, title, taskId }: PomodoroModalProps) =
                 isOpen={isOpen}
                 onClose={onClose}
                 closeOnOverlayClick={false}
+                closeOnEsc={false}
             >
                 <ModalOverlay backdropFilter='blur(10px)' />
                 <ModalContent bgColor={"baseBackground"}>
